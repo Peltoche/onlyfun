@@ -1,0 +1,65 @@
+<!doctype html>
+<html class="h-100" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; upgrade-insecure-requests" />
+
+  <script>
+    const isSystemThemeSetToDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    if (isSystemThemeSetToDark) {
+      document.documentElement.dataset.mdbTheme = "dark";
+    };
+
+  </script>
+
+  <title>Zapette</title>
+  <link rel="manifest" href="/assets/site.webmanifest" />
+
+  <link rel="stylesheet" href="/assets/css/libs/mdb.min.css">
+  <link rel="stylesheet" href="/assets/css/libs/fontawesome.min.css">
+</head>
+
+<body class="h-100" hx-ext="response-targets" hx-target-5*="this">
+  <main class="container d-flex justify-content-center mt-5">
+    <!-- <div class="text-center my-5"> -->
+    <!--   <img src="https://getbootstrap.com/docs/5.0/assets/brand/bootstrap-logo.svg" alt="logo" width="100"> -->
+    <!-- </div> -->
+    <div class="card shadow-lg">
+      <div class="card-body p-5">
+        <h1 class="fs-4 card-title fw-bold mb-4">Login</h1>
+        <form method="POST" class="needs-validation" novalidate="" autocomplete="off">
+          <div class="mb-3">
+            <label class="mb-2 text-muted" for="username">Username</label>
+            <input id="username" type="username" class="form-control {{ if .UsernameError }}is-invalid{{ end }}"
+              name="username" value="{{ .Username }}" required autofocus aria-describedby="validationUsername">
+            <div id="validationUsername" , class="invalid-feedback">{{ .UsernameError }}</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="text-muted" for="password">Password</label>
+            <input id="password" type="password" class="form-control {{ if .PasswordError }}is-invalid{{ end }}"
+              name="password" required aria-describedby="validationPassword">
+            <div id="validationPassword" , class="invalid-feedback">{{ .PasswordError }}</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer></footer>
+  <script src="/assets/js/libs/mdb.umd.min.js"></script>
+  <script src="/assets/js/libs/htmx-2.0.2.min.js"></script>
+  <script src="/assets/js/libs/htmx-response-targets-2.0.0.js"></script>
+
+  <script>
+  </script>
+
+</body>
+
+</html>

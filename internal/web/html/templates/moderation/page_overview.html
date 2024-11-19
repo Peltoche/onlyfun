@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; upgrade-insecure-requests" />
+
+  <script>
+    const isSystemThemeSetToDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    if (isSystemThemeSetToDark) {
+      document.documentElement.dataset.mdbTheme = "dark";
+    };
+  </script>
+
+  <title>OnlyFun</title>
+  <link rel="manifest" href="/assets/site.webmanifest" />
+
+  <link rel="stylesheet" href="/assets/css/libs/mdb.min.css">
+  <link rel="stylesheet" href="/assets/css/libs/fontawesome.min.css">
+</head>
+
+<body>
+  {{ template "header" .Header }}
+
+  <main class="container">
+    <div class="card mt-5">
+      <div class="card-body py-5 px-5">
+        <div class="row gx-lg-4 align-items-center">
+          <h1>Moderation Dashboard</h1>
+        </div>
+      </div>
+    </div>
+    <div class="row justify-content-center mt-4">
+      <div class="statCard card text-center col-6 col-sm-4 col-xl-2">
+        <div class="card-body">
+          <p class="text-muted mb-2">Posts waiting moderation</p>
+          <h4 class="mb-0">
+            {{.PostsWaitingModeration}}
+            <span class="text-success" style="font-size: 0.875rem">
+          </h4>
+        </div>
+        <a role="button" class="btn btn-block btn-outline-secondary mb-2" href="/moderation/posts">Moderate</a>
+      </div>
+    </div>
+  </main>
+
+</body>
+
+<script src="/assets/js/libs/mdb.umd.min.js"></script>
+<script src="/assets/js/theme.js"></script>
+
+</html>

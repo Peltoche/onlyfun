@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; upgrade-insecure-requests" />
+
+  <script>
+    const isSystemThemeSetToDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    if (isSystemThemeSetToDark) {
+      document.documentElement.dataset.mdbTheme = "dark";
+    };
+  </script>
+
+  <title>OnlyFun</title>
+  <link rel="manifest" href="/assets/site.webmanifest" />
+
+  <link rel="stylesheet" href="/assets/css/libs/mdb.min.css">
+  <link rel="stylesheet" href="/assets/css/libs/fontawesome.min.css">
+</head>
+
+<body>
+  {{ template "header" .Header }}
+
+  <main class="container-fluid">
+    {{ if gt (len .Posts) 0 }}
+
+    {{ range .Posts }}
+    <div class="row justify-content-center mt-4">
+      <article class="card align-self-center col-12 col-sm-9 col-md-6 col-lg-4">
+        <h5 class="card-header">{{.Title}}</h5>
+        <div class="card-body text-center">
+          <img class="mw-100" srcset="/medias/{{.FileID}}" alt="{{.Title}}" loading="lazy">
+        </div>
+      </article>
+    </div>
+    {{ end }}
+
+    {{else}}
+
+    <div class="row justify-content-center mt-4">
+      <article class="card col-9">
+        <div class="card-body text-center">
+          <p>No Posts</p>
+          <p>Let's make something creative for fun!</p>
+          <a role="button" class="btn btn-primary shadow-0" href="/submit"><i class="fas fa-lg fa-pen me-1"></i>
+            Post</a>
+        </div>
+      </article>
+    </div>
+
+    {{ end }}
+
+  </main>
+
+
+</body>
+
+<script src="/assets/js/libs/mdb.umd.min.js"></script>
+<script src="/assets/js/theme.js"></script>
+<script src="/assets/js/libs/htmx-2.0.2.min.js"></script>
+
+</html>

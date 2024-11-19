@@ -1,0 +1,92 @@
+inpackage: True
+dir: "{{.InterfaceDir}}"
+outpkg: "{{.PackageName}}"
+with-expecter: False
+
+packages:
+  github.com/Peltoche/onlyfun/internal/services/medias:
+    interfaces:
+      Service:
+        config:
+          mockname: "Mock{{.InterfaceName}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock.go"
+      fileStorage:
+        config:
+          mockname: "mock{{.InterfaceName | camelcase}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock_test.go"
+      mediaStorage:
+        config:
+          mockname: "mock{{.InterfaceName | camelcase}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock_test.go"
+  github.com/Peltoche/onlyfun/internal/services/posts:
+    interfaces:
+      Service:
+        config:
+          mockname: "Mock{{.InterfaceName}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock.go"
+      storage:
+        config:
+          mockname: "mock{{.InterfaceName | camelcase}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock_test.go"
+  github.com/Peltoche/onlyfun/internal/services/roles:
+    interfaces:
+      Service:
+        config:
+          mockname: "Mock{{.InterfaceName}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock.go"
+      storage:
+        config:
+          mockname: "mock{{.InterfaceName | camelcase}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock_test.go"
+  github.com/Peltoche/onlyfun/internal/services/users:
+    interfaces:
+      Service:
+        config:
+          mockname: "Mock{{.InterfaceName}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock.go"
+      storage:
+        config:
+          mockname: "mock{{.InterfaceName | camelcase}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock_test.go"
+  github.com/Peltoche/onlyfun/internal/services/websessions:
+    interfaces:
+      Service:
+        config:
+          mockname: "Mock{{.InterfaceName}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock.go"
+      storage:
+        config:
+          mockname: "mock{{.InterfaceName | camelcase}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock_test.go"
+
+  # Tools
+  github.com/Peltoche/onlyfun/internal/tools/clock:
+    interfaces:
+      Clock:
+        config:
+          mockname: "Mock"
+          filename: "mock.go"
+  github.com/Peltoche/onlyfun/internal/tools/uuid:
+    interfaces:
+      Service:
+        config:
+          mockname: "Mock"
+          filename: "mock.go"
+  github.com/Peltoche/onlyfun/internal/tools/password:
+    interfaces:
+      Password:
+        config:
+          mockname: "Mock"
+          filename: "mock.go"
+  github.com/Peltoche/onlyfun/internal/tools/response:
+    interfaces:
+      Writer:
+        config:
+          mockname: "Mock"
+          filename: "mock.go"
+  github.com/Peltoche/onlyfun/internal/web/html:
+    interfaces:
+      Writer:
+        config:
+          mockname: "Mock"
+          filename: "writer_mock.go"

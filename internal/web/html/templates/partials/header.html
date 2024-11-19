@@ -1,0 +1,78 @@
+{{ define "header" }}
+<nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary">
+  <!-- Container wrapper -->
+  <div class="container-fluid">
+    <!-- Navbar brand -->
+    <a class="navbar-brand mt-2 mt-lg-0" href="/">
+      OnlyFun
+      <!-- <img src="https://mdbcdn.b-cdn.net/img/logo/mdb-transaprent-noshadows.webp" height="15" alt="MDB Logo" loading="lazy" /> -->
+    </a>
+
+    <!-- Right elements -->
+    <div class="d-flex align-items-center">
+
+      {{if .User }}
+      <div class="dropdown">
+        <a data-mdb-dropdown-init class="dropdown-toggle d-flex align-items-center hidden-arrow" href="#"
+          id="navbarDropdownMenuAvatar" role="button" aria-expanded="false">
+
+          <img src="/medias/{{.User.Avatar}}" class="rounded-circle" height="30" alt="Profile picture" loading="lazy" />
+        </a>
+        <ul id="avatarMenu" class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuAvatar">
+          <li>
+            <a class="dropdown-item" href="#">My Profile</a>
+          </li>
+
+          {{ if .CanModerate }}
+          <li>
+            <a class="dropdown-item" href="/moderation">Moderation</a>
+          </li>
+          {{ end }}
+
+          <li id="darkModeItem">
+            <a class="dropdown-item">
+              <div class="row justify-content-between">
+                <span class="col-8">Dark Mode</span>
+                <div class="col-4 form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" disabled id="themingSwitcher" />
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <li>
+            <a class="dropdown-item" href="/logout">Logout</a>
+          </li>
+        </ul>
+      </div>
+      {{ end }}
+
+      <li class="nav-item align-items-center d-flex ms-3">
+        {{if .User }}
+
+        {{ if .PostButton }}
+        <a role="button" class="btn btn-primary btn-rounded shadow-0" href="/submit">
+          <i class="fas fa-lg fa-pen me-1"></i>Post</a>
+        {{ end }}
+
+        {{else}}
+        <button type="button" class="btn btn-primary btn-rounded" hx-get="/login" hx-push-url="true" hx-swap="innerHTML"
+          hx-target="body">Login</button>
+
+        {{end}}
+      </li>
+    </div>
+    <!-- Right elements -->
+  </div>
+  <!-- Container wrapper -->
+</nav>
+<style>
+  #avatarMenu {
+    width: 220px;
+  }
+
+  #darkModeItem {
+    cursor: pointer;
+  }
+</style>
+{{ end }}

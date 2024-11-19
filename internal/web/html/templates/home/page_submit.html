@@ -1,0 +1,74 @@
+<!doctype html>
+<html class="h-100" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- <meta http-equiv="Content-Security-Policy" -->
+  <!--   content="default-src 'self' 'unsafe-eval' ; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; upgrade-insecure-requests" /> -->
+
+  <script>
+    const isSystemThemeSetToDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    if (isSystemThemeSetToDark) {
+      document.documentElement.dataset.mdbTheme = "dark";
+    };
+  </script>
+
+  <title>OnlyFun</title>
+  <link rel="manifest" href="/assets/site.webmanifest" />
+
+  <link rel="stylesheet" href="/assets/css/libs/mdb.min.css">
+  <link rel="stylesheet" href="/assets/css/libs/file-upload.min.css">
+  <link rel="stylesheet" href="/assets/css/libs/fontawesome.min.css">
+</head>
+
+<body class="h-100">
+  {{ template "header" .Header }}
+
+  <main class="container d-flex justify-content-center">
+    <div class="card col-lg-6 col-sm-10 col-12 mt-5">
+      <div class="card-body p-5">
+        <h1 class="fs-4 card-title fw-bold mb-4">Create Post</h1>
+        <form method="POST" action="/submit" class="needs-validation" novalidate="" autocomplete="off"
+          enctype="multipart/form-data">
+          <div data-mdb-input-init class="form-outline mb-4">
+            <input type="text" id="title" name="title" class="form-control" />
+            <label class="form-label" for="title">Title</label>
+          </div>
+
+          <div id="file-upload" class="card">
+            <div class="file-upload-wrapper">
+              <input type="file" name="file" data-mdb-max-file-size="5M" data-mdb-height="400"
+                data-mdb-accepted-extensions="image/*" class="file-upload-input" data-mdb-file-upload-init />
+            </div>
+          </div>
+
+
+          <button type="submit" class="mt-4 btn btn-block btn-primary btn-rounded shadow-0">Post</button>
+        </form>
+
+      </div>
+    </div>
+  </main>
+
+</body>
+<script src="/assets/js/libs/mdb.umd.min.js"></script>
+<script src="/assets/js/libs/file-upload.min.js"></script>
+<script src="/assets/js/libs/htmx-2.0.2.min.js"></script>
+<script src="/assets/js/theme.js"></script>
+
+<style>
+  .file-upload-preview-img {
+    object-fit: contain;
+  }
+
+  .file-upload-preview {
+    height: 400px;
+    max-height: 400px;
+  }
+</style>
+
+</html>
+
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <!-- Avatar -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/site.webmanifest">
+  <link rel="mask-icon" href="/assets/images/favicons/safari-pinned-tab.svg" color="#5bbad5">
+
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+
+
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; upgrade-insecure-requests" />
+
+  <link rel="stylesheet" href="/assets/css/libs/mdb.min.css">
+  <link rel="stylesheet" href="/assets/css/libs/fontawesome.min.css">
+</head>
+
+<body>
+  <main class="container p-5">
+    <section id="content">
+      <div class="container-fluid d-flex flex-column">
+        <div class="row align-items-center justify-content-center">
+          <div class="col-md-9 col-lg-6 my-5">
+            <div class="text-center error-page">
+              <h1 class="display-1 text-secondary">500</h1>
+              <h2 class="mb-4">Sorry, something went wrong!</h2>
+              <p class="w-sm-80 mx-auto mb-4">Hm... Unfortunately, the server crashed. Apologies.</p>
+              <div>
+                <a href="/" class="btn btn-info btn-lg me-sm-2 mb-2 mb-sm-0">Return Home</a>
+              </div>
+              <div class="my-5 bg-secondary bg-gradient bg-opacity-10">
+                <h5>Details for the support:</h5>
+                <code class="user-select-all">
+                  RequestID: {{.requestID}}
+                </code>
+              </div>
+            </div>
+          </div>
+    </section>
+  </main>
+
+
+  <script src="/assets/js/libs/htmx.min.js"></script>
+  <script src="/assets/js/libs/response-targets.js"></script>
+</body>
+
+</html>
