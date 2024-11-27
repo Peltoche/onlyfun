@@ -1,0 +1,13 @@
+github_checks:
+  annotations: false
+ignore:
+  - "**/*_mock.go"
+  - "**/init.go"
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true

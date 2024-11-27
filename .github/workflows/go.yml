@@ -1,0 +1,73 @@
+name: Go
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.23.2"
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+          version: latest
+
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: wagoid/commitlint-github-action@v6
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.23.2"
+      - name: Run tests
+        run: go test -count=1 --shuffle=on -race -timeout 30s -coverprofile=coverage.out -covermode=atomic ./...
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.23.2"
+      - name: Install mockery
+        run: go install github.com/vektra/mockery/v2@v2.46.0
+      - name: Run go generate
+        run: go generate ./...
+      - name: Check if there are changes
+        id: changes
+        uses: UnicornGlobal/has-changes-action@v1.0.11
+      - name: Process changes
+        if: steps.changes.outputs.changed == 1
+        run: |
+          echo "Changes exist"
+          exit 1
+
+  deadcode:
+    runs-on: ubuntu-latest
+    name: Run deadcode
+    steps:
+      - id: deadcode
+        uses: lost-coders/deadcode-action@v0.1.0
+        with:
+          flags: "-test"
+          go-version: "1.23.2"
+          go-package: "./..."

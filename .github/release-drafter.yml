@@ -1,0 +1,54 @@
+name-template: "Coming soon"
+tag-template: "latest"
+categories:
+  - title: "🚨 **Breaking Changes**"
+    labels:
+      - "breaking-change"
+  - title: "🚀 Features"
+    labels:
+      - "feature"
+  - title: "🐛 Bug Fixes"
+    labels:
+      - "fix"
+      - "bug"
+  - title: "🧰 Maintenance"
+    labels:
+      - "chore"
+      - "dependencies"
+  - title: "📚 Documentation"
+    labels:
+      - "documentation"
+
+autolabeler:
+  - label: "buf"
+    title:
+      - "/fix: /i"
+  - label: "chore"
+    title:
+      - "/chore: /i"
+      - "/deps: /i"
+      - "/refacto: /i"
+      - "/ci: /i"
+      - "/test: /i"
+      - "/style: /i"
+  - label: "feature"
+    title:
+      - "/feat: /i"
+  - label: "documentation"
+    title:
+      - "/docs: /i"
+
+change-template: "- $TITLE (#$NUMBER) @$AUTHOR"
+sort-by: title
+sort-direction: ascending
+branches:
+  - develop
+exclude-labels:
+  - "skip-changelog"
+no-changes-template: "This release contains minor changes and bugfixes."
+template: |
+  # Release Notes
+
+  $CHANGES
+
+  🎉 **Thanks to all contributors helping with this release!** 🎉
