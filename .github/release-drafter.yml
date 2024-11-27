@@ -20,7 +20,7 @@ categories:
       - "documentation"
 
 autolabeler:
-  - label: "buf"
+  - label: "bug"
     title:
       - "/fix: /i"
   - label: "chore"
