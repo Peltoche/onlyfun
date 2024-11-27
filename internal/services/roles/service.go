@@ -11,9 +11,7 @@ import (
 	"github.com/Peltoche/onlyfun/internal/tools/uuid"
 )
 
-var (
-	ErrInvalidRoleName = fmt.Errorf("invalid role name")
-)
+var ErrInvalidRoleName = fmt.Errorf("invalid role name")
 
 type storage interface {
 	Save(ctx context.Context, r *Role) error

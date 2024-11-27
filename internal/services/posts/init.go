@@ -24,7 +24,6 @@ func Init(
 	db sqlstorage.Querier,
 	medias medias.Service,
 ) (Service, error) {
-
 	posts := newSqlStorage(db)
 
 	return newService(tools, posts, medias), nil

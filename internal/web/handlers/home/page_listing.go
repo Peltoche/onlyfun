@@ -11,7 +11,6 @@ import (
 	"github.com/Peltoche/onlyfun/internal/services/medias"
 	"github.com/Peltoche/onlyfun/internal/services/posts"
 	"github.com/Peltoche/onlyfun/internal/services/roles"
-	"github.com/Peltoche/onlyfun/internal/services/websessions"
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/errs"
 	"github.com/Peltoche/onlyfun/internal/tools/router"
@@ -26,15 +25,14 @@ import (
 const postPagination = 50
 
 type ListingPage struct {
-	webSessions websessions.Service
-	roles       roles.Service
-	auth        *auth.Authenticator
-	posts       posts.Service
-	medias      medias.Service
-	html        html.Writer
-	l           *sync.Mutex
-	latestPost  *posts.Post
-	uuid        uuid.Service
+	roles      roles.Service
+	auth       *auth.Authenticator
+	posts      posts.Service
+	medias     medias.Service
+	html       html.Writer
+	l          *sync.Mutex
+	latestPost *posts.Post
+	uuid       uuid.Service
 }
 
 func NewListingPage(
@@ -66,8 +64,9 @@ func NewListingPage(
 
 	go func() {
 		for post := range postChan {
+			p := post
 			handler.l.Lock()
-			handler.latestPost = &post
+			handler.latestPost = &p
 			handler.l.Unlock()
 		}
 	}()
@@ -92,7 +91,6 @@ func (h *ListingPage) printPage(w http.ResponseWriter, r *http.Request) {
 	if err != nil && !errors.Is(err, auth.ErrNotAuthenticated) {
 		h.html.WriteHTMLErrorPage(w, r, err)
 		return
-
 	}
 
 	if h.latestPost != nil {
@@ -114,12 +112,10 @@ func (h *ListingPage) printPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ListingPage) serveMedia(w http.ResponseWriter, r *http.Request) {
-
 	fileID, err := h.uuid.Parse(chi.URLParam(r, "fileID"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
-
 	}
 
 	res, err := h.medias.GetMetadata(r.Context(), fileID)

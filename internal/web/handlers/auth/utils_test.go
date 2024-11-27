@@ -12,10 +12,10 @@ import (
 	"github.com/Peltoche/onlyfun/internal/web/html"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_Utils_Authenticator(t *testing.T) {
-
 	t.Run("getUserAndSession success", func(t *testing.T) {
 		webSessionsMock := websessions.NewMockService(t)
 		usersMock := users.NewMockService(t)
@@ -33,7 +33,7 @@ func Test_Utils_Authenticator(t *testing.T) {
 		resUser, resSession, err := auth.GetUserAndSession(w, r)
 		assert.Equal(t, user, resUser)
 		assert.Equal(t, session, resSession)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		res := w.Result()
 		defer res.Body.Close()

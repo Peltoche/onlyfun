@@ -7,7 +7,6 @@ import (
 
 	"github.com/Peltoche/onlyfun/internal/services/posts"
 	"github.com/Peltoche/onlyfun/internal/services/roles"
-	"github.com/Peltoche/onlyfun/internal/services/websessions"
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/router"
 	"github.com/Peltoche/onlyfun/internal/web/handlers/auth"
@@ -18,11 +17,10 @@ import (
 )
 
 type SubmitPage struct {
-	webSessions websessions.Service
-	posts       posts.Service
-	roles       roles.Service
-	auth        *auth.Authenticator
-	html        html.Writer
+	posts posts.Service
+	roles roles.Service
+	auth  *auth.Authenticator
+	html  html.Writer
 }
 
 func NewSubmitPage(

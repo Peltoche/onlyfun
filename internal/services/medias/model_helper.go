@@ -37,6 +37,7 @@ func NewFakeFileMeta(t testing.TB) *FakeFileMetaBuilder {
 func (f *FakeFileMetaBuilder) Build() *FileMeta {
 	return f.fileMeta
 }
+
 func (f *FakeFileMetaBuilder) BuildAndStore(ctx context.Context, db sqlstorage.Querier) *FileMeta {
 	f.t.Helper()
 

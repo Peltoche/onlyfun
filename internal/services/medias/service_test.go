@@ -7,7 +7,7 @@ import (
 func TestMediaStorageAfero(t *testing.T) {
 	t.Parallel()
 
-	//TODO: Write the missing tests
+	// TODO: Write the missing tests
 
 	t.Skip("Test not written yet")
 

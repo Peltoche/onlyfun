@@ -11,8 +11,10 @@ import (
 	"github.com/Peltoche/onlyfun/internal/tools/sqlstorage"
 )
 
-const tableName = "roles"
-const permSeparator = ","
+const (
+	tableName     = "roles"
+	permSeparator = ","
+)
 
 var errNotFound = errors.New("not found")
 
