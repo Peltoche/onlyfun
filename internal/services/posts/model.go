@@ -48,11 +48,3 @@ func (t CreateCmd) Validate() error {
 		v.Field(&t.Media, v.Required),
 	)
 }
-
-type GetPostsCmd struct {
-	FirstPost uint64
-}
-
-func (t GetPostsCmd) Validate() error {
-	return v.ValidateStruct(&t)
-}

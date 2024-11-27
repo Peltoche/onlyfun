@@ -59,12 +59,6 @@ func (f *FakeUserBuilder) CreatedBy(user *User) *FakeUserBuilder {
 	return f
 }
 
-func (f *FakeUserBuilder) WithUsername(username string) *FakeUserBuilder {
-	f.user.username = username
-
-	return f
-}
-
 func (f *FakeUserBuilder) WithRole(role *roles.Role) *FakeUserBuilder {
 	f.user.role = role.Name()
 
