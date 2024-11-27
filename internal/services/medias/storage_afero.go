@@ -12,9 +12,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-var (
-	errNotExist = errors.New("file doesn't exists")
-)
+var errNotExist = errors.New("file doesn't exists")
 
 type storageAfero struct {
 	fs   afero.Fs

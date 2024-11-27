@@ -14,12 +14,12 @@ import (
 	"github.com/Peltoche/onlyfun/internal/tools/uuid"
 )
 
-const maxImgSizeBytes = 5 * 1024 * 1024 // 5MiB
-const maxPostBatchSize = 100
-
-var (
-	ErrToMuchPostsAsked = errors.New("too much posts asks")
+const (
+	maxImgSizeBytes  = 5 * 1024 * 1024 // 5MiB
+	maxPostBatchSize = 100
 )
+
+var ErrToMuchPostsAsked = errors.New("too much posts asks")
 
 type storage interface {
 	Save(ctx context.Context, post *Post) (uint64, error)

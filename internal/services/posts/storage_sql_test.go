@@ -40,7 +40,6 @@ func TestPostSqlStorage(t *testing.T) {
 
 		require.Nil(t, res)
 		require.ErrorIs(t, err, errNotFound)
-
 	})
 
 	t.Run("Save success", func(t *testing.T) {
@@ -82,7 +81,6 @@ func TestPostSqlStorage(t *testing.T) {
 
 		require.NoError(t, err)
 		require.Equal(t, post, res)
-
 	})
 
 	t.Run("GetListedPosts success", func(t *testing.T) {

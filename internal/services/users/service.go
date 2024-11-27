@@ -96,7 +96,8 @@ func (s *services) createUser(
 	role *roles.Role,
 	username string,
 	password secret.Text,
-	createdBy uuid.UUID) (*User, error) {
+	createdBy uuid.UUID,
+) (*User, error) {
 	hashedPassword, err := s.password.Encrypt(ctx, password)
 	if err != nil {
 		return nil, errs.Internal(fmt.Errorf("failed to hash the password: %w", err))

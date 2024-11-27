@@ -25,12 +25,14 @@ type item struct {
 func main() {
 	filePath := os.Args[1]
 	if filePath == "" {
+		//nolint: forbidigo // At the moment we authorize the logs for this tool
 		fmt.Println("9gagimporter [jsonPath] [cookie]")
 		os.Exit(1)
 	}
 
 	cookie := os.Args[2]
 	if cookie == "" {
+		//nolint: forbidigo // At the moment we authorize the logs for this tool
 		fmt.Println("9gagimporter [jsonPath] [cookie]")
 		os.Exit(1)
 	}
@@ -52,6 +54,7 @@ func main() {
 			continue
 		}
 
+		//nolint: forbidigo // At the moment we authorize the logs for this tool
 		fmt.Printf("%q -> %v\n", item.Title, item.URL)
 
 		var b bytes.Buffer
@@ -102,6 +105,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+		res.Body.Close()
 
 		if res.StatusCode != 200 {
 			panic(fmt.Sprintf("should return 302, have %d", res.StatusCode))

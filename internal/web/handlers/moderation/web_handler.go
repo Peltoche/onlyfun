@@ -10,11 +10,9 @@ import (
 	"github.com/Peltoche/onlyfun/internal/services/posts"
 	"github.com/Peltoche/onlyfun/internal/services/roles"
 	"github.com/Peltoche/onlyfun/internal/services/users"
-	"github.com/Peltoche/onlyfun/internal/services/websessions"
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/errs"
 	"github.com/Peltoche/onlyfun/internal/tools/router"
-	"github.com/Peltoche/onlyfun/internal/tools/uuid"
 	"github.com/Peltoche/onlyfun/internal/web/handlers/auth"
 	"github.com/Peltoche/onlyfun/internal/web/html"
 	"github.com/Peltoche/onlyfun/internal/web/html/templates/moderation"
@@ -23,14 +21,12 @@ import (
 )
 
 type ModerationHandler struct {
-	webSessions websessions.Service
-	auth        *auth.Authenticator
-	posts       posts.Service
-	medias      medias.Service
-	users       users.Service
-	roles       roles.Service
-	html        html.Writer
-	uuid        uuid.Service
+	auth   *auth.Authenticator
+	posts  posts.Service
+	medias medias.Service
+	users  users.Service
+	roles  roles.Service
+	html   html.Writer
 }
 
 func NewModerationHandler(

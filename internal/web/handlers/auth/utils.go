@@ -11,9 +11,7 @@ import (
 	"github.com/Peltoche/onlyfun/internal/web/html"
 )
 
-var (
-	ErrNotAuthenticated = errors.New("user not authenticated")
-)
+var ErrNotAuthenticated = errors.New("user not authenticated")
 
 type AccessType int
 
