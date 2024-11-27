@@ -19,7 +19,7 @@ require (
 	github.com/neilotoole/slogt v1.1.0
 	github.com/o1egl/govatar v0.4.1
 	github.com/spf13/afero v1.11.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/unrolled/render v1.7.0
 	go.uber.org/fx v1.23.0
 	golang.org/x/crypto v0.29.0
