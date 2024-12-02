@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Peltoche/onlyfun/internal/services/medias"
 	"github.com/Peltoche/onlyfun/internal/services/users"
 	"github.com/Peltoche/onlyfun/internal/tools/sqlstorage"
 	"github.com/Peltoche/onlyfun/internal/tools/uuid"
@@ -34,6 +35,12 @@ func NewFakePost(t testing.TB) *FakePostBuilder {
 			createdBy: uuidProvider.New(),
 		},
 	}
+}
+
+func (f *FakePostBuilder) WithMedia(media *medias.FileMeta) *FakePostBuilder {
+	f.post.fileID = media.ID()
+
+	return f
 }
 
 func (f *FakePostBuilder) WithStatus(status Status) *FakePostBuilder {

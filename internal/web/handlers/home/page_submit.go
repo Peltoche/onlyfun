@@ -81,7 +81,7 @@ func (h *SubmitPage) submitPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, header, err := r.FormFile("file")
+	file, _, err := r.FormFile("file")
 	if err != nil {
 		h.html.WriteHTMLErrorPage(w, r, fmt.Errorf("failed to retrieve the FormFile: %w", err))
 		return
@@ -90,7 +90,6 @@ func (h *SubmitPage) submitPost(w http.ResponseWriter, r *http.Request) {
 
 	_, err = h.posts.Create(r.Context(), &posts.CreateCmd{
 		Title:     r.FormValue("title"),
-		Size:      uint64(header.Size),
 		Media:     file,
 		CreatedBy: user,
 	})

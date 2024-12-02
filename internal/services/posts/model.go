@@ -35,7 +35,6 @@ func (p Post) CreatedBy() uuid.UUID { return p.createdBy }
 
 type CreateCmd struct {
 	Title     string
-	Size      uint64
 	Media     io.Reader
 	CreatedBy *users.User
 }
@@ -43,7 +42,6 @@ type CreateCmd struct {
 func (t CreateCmd) Validate() error {
 	return v.ValidateStruct(&t,
 		v.Field(&t.Title, v.Required, v.Length(3, 280)),
-		v.Field(&t.Size, v.Required),
 		v.Field(&t.CreatedBy, v.Required),
 		v.Field(&t.Media, v.Required),
 	)

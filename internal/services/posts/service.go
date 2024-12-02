@@ -30,7 +30,7 @@ type storage interface {
 }
 
 type service struct {
-	posts        storage
+	storage      storage
 	medias       medias.Service
 	clock        clock.Clock
 	uuid         uuid.Service
@@ -40,7 +40,7 @@ type service struct {
 
 func newService(tools tools.Tools, posts storage, medias medias.Service) *service {
 	svc := &service{
-		posts:        posts,
+		storage:      posts,
 		medias:       medias,
 		clock:        tools.Clock(),
 		uuid:         tools.UUID(),
@@ -86,9 +86,9 @@ func (s *service) Create(ctx context.Context, cmd *CreateCmd) (*Post, error) {
 		createdAt: s.clock.Now(),
 	}
 
-	err = s.posts.Save(ctx, &post)
+	err = s.storage.Save(ctx, &post)
 	if err != nil {
-		return nil, fmt.Errorf("failed to save the post: %w", err)
+		return nil, errs.Internal(fmt.Errorf("failed to save the post: %w", err))
 	}
 
 	go func() {
@@ -101,7 +101,7 @@ func (s *service) Create(ctx context.Context, cmd *CreateCmd) (*Post, error) {
 }
 
 func (s *service) GetNextPostToModerate(ctx context.Context) (*Post, error) {
-	res, err := s.posts.GetLatestPostWithStatus(ctx, Uploaded)
+	res, err := s.storage.GetLatestPostWithStatus(ctx, Uploaded)
 	if errors.Is(err, errNotFound) {
 		return nil, errs.NotFound(fmt.Errorf("no post available"))
 	}
@@ -121,9 +121,9 @@ func (s *service) GetUserStats(ctx context.Context, user *users.User) (map[Statu
 	stats := make(map[Status]int, len(status))
 
 	for _, status := range status {
-		stats[status], err = s.posts.CountUserPostsByStatus(ctx, user.ID(), status)
+		stats[status], err = s.storage.CountUserPostsByStatus(ctx, user.ID(), status)
 		if err != nil {
-			return nil, fmt.Errorf("failed to CountUserPostsBystatus with status %q for user %q: %w", status, user.ID(), err)
+			return nil, errs.Internal(fmt.Errorf("failed to CountUserPostsBystatus with status %q for user %q: %w", status, user.ID(), err))
 		}
 	}
 
@@ -131,7 +131,7 @@ func (s *service) GetUserStats(ctx context.Context, user *users.User) (map[Statu
 }
 
 func (s *service) GetLatestPost(ctx context.Context) (*Post, error) {
-	res, err := s.posts.GetLatestPostWithStatus(ctx, Listed)
+	res, err := s.storage.GetLatestPostWithStatus(ctx, Listed)
 	if errors.Is(err, errNotFound) {
 		return nil, errs.NotFound(fmt.Errorf("no post available"))
 	}
@@ -144,7 +144,12 @@ func (s *service) GetLatestPost(ctx context.Context) (*Post, error) {
 }
 
 func (s *service) CountPostsWaitingModeration(ctx context.Context) (int, error) {
-	return s.posts.CountPostsWithStatus(ctx, Uploaded)
+	res, err := s.storage.CountPostsWithStatus(ctx, Uploaded)
+	if err != nil {
+		return 0, errs.Internal(fmt.Errorf("failed to CountPostsWithStatus: %w", err))
+	}
+
+	return res, nil
 }
 
 func (s *service) GetPosts(ctx context.Context, start uint64, nbPosts uint64) ([]Post, error) {
@@ -152,7 +157,7 @@ func (s *service) GetPosts(ctx context.Context, start uint64, nbPosts uint64) ([
 		return nil, errs.Validation(ErrToMuchPostsAsked)
 	}
 
-	res, err := s.posts.GetListedPosts(ctx, start, nbPosts)
+	res, err := s.storage.GetListedPosts(ctx, start, nbPosts)
 	if err != nil {
 		return nil, errs.Internal(fmt.Errorf("failed to GetAll: %w", err))
 	}
