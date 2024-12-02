@@ -1,6 +1,7 @@
 github_checks:
   annotations: false
 ignore:
+  - "**/mock.go"
   - "**/*_mock.go"
   - "**/init.go"
 coverage:
