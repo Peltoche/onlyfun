@@ -1,7 +1,6 @@
 package users
 
 import (
-	"encoding/json"
 	"regexp"
 	"time"
 
@@ -37,17 +36,6 @@ type User struct {
 	status            Status
 	avatar            uuid.UUID // Media's id
 	createdBy         uuid.UUID
-}
-
-func (u *User) MarshalJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"id":        u.id,
-		"username":  u.username,
-		"role":      u.role,
-		"createdAt": u.createdAt,
-		"avatar":    u.avatar,
-		"status":    u.status,
-	})
 }
 
 func (u User) ID() uuid.UUID                { return u.id }
