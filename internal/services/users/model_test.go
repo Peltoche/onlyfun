@@ -6,7 +6,7 @@ import (
 	"github.com/Peltoche/onlyfun/internal/services/roles"
 	"github.com/Peltoche/onlyfun/internal/tools/secret"
 	"github.com/Peltoche/onlyfun/internal/tools/uuid"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
+	v "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -18,11 +18,13 @@ func Test_User_Getters(t *testing.T) {
 	assert.Equal(t, u.role, u.Role())
 	assert.Equal(t, u.username, u.Username())
 	assert.Equal(t, u.createdAt, u.CreatedAt())
+	assert.Equal(t, u.passwordChangedAt, u.PasswordChangedAt())
+	assert.Equal(t, u.createdBy, u.CreatedBy())
 	assert.Equal(t, u.status, u.Status())
 }
 
 func Test_CreateUserRequest_is_validatable(t *testing.T) {
-	assert.Implements(t, (*validation.Validatable)(nil), new(CreateCmd))
+	assert.Implements(t, (*v.Validatable)(nil), new(CreateCmd))
 }
 
 func Test_CreateUserRequest_Validate_success(t *testing.T) {
