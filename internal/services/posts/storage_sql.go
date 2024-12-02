@@ -26,7 +26,7 @@ func newSqlStorage(db sqlstorage.Querier) *sqlStorage {
 	return &sqlStorage{db}
 }
 
-func (s *sqlStorage) Save(ctx context.Context, p *Post) (uint64, error) {
+func (s *sqlStorage) Save(ctx context.Context, p *Post) error {
 	var id uint64
 
 	err := sq.
@@ -42,10 +42,12 @@ func (s *sqlStorage) Save(ctx context.Context, p *Post) (uint64, error) {
 		RunWith(s.db).
 		ScanContext(ctx, &id)
 	if err != nil {
-		return 0, fmt.Errorf("sql error: %w", err)
+		return fmt.Errorf("sql error: %w", err)
 	}
 
-	return id, nil
+	p.id = id
+
+	return nil
 }
 
 func (s *sqlStorage) GetListedPosts(ctx context.Context, start uint64, limit uint64) ([]Post, error) {

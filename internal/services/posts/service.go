@@ -22,7 +22,7 @@ const (
 var ErrToMuchPostsAsked = errors.New("too much posts asks")
 
 type storage interface {
-	Save(ctx context.Context, post *Post) (uint64, error)
+	Save(ctx context.Context, post *Post) error
 	GetLatestPostWithStatus(ctx context.Context, status Status) (*Post, error)
 	GetListedPosts(ctx context.Context, start uint64, limit uint64) ([]Post, error)
 	CountPostsWithStatus(ctx context.Context, status Status) (int, error)
@@ -86,12 +86,10 @@ func (s *service) Create(ctx context.Context, cmd *CreateCmd) (*Post, error) {
 		createdAt: s.clock.Now(),
 	}
 
-	id, err := s.posts.Save(ctx, &post)
+	err = s.posts.Save(ctx, &post)
 	if err != nil {
 		return nil, fmt.Errorf("failed to save the post: %w", err)
 	}
-
-	post.id = id
 
 	go func() {
 		for _, ch := range s.newPostChans {
