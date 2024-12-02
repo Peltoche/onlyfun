@@ -131,31 +131,21 @@ func (_m *mockStorage) GetListedPosts(ctx context.Context, start uint64, limit u
 }
 
 // Save provides a mock function with given fields: ctx, post
-func (_m *mockStorage) Save(ctx context.Context, post *Post) (uint64, error) {
+func (_m *mockStorage) Save(ctx context.Context, post *Post) error {
 	ret := _m.Called(ctx, post)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
-	var r0 uint64
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *Post) (uint64, error)); ok {
-		return rf(ctx, post)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *Post) uint64); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *Post) error); ok {
 		r0 = rf(ctx, post)
 	} else {
-		r0 = ret.Get(0).(uint64)
+		r0 = ret.Error(0)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *Post) error); ok {
-		r1 = rf(ctx, post)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // newMockStorage creates a new instance of mockStorage. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

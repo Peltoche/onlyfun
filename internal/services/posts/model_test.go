@@ -31,7 +31,6 @@ func Test_CreateCmd_Validate_success(t *testing.T) {
 
 	err := CreateCmd{
 		Title:     "This is a title",
-		Size:      1024,
 		Media:     bytes.NewReader(fileContent),
 		CreatedBy: user,
 	}.Validate()
