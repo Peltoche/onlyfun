@@ -38,15 +38,21 @@ func (f *FakeFileMetaBuilder) Build() *FileMeta {
 	return f.fileMeta
 }
 
-func (f *FakeFileMetaBuilder) BuildAndStore(ctx context.Context, db sqlstorage.Querier) *FileMeta {
+func (f *FakeFileMetaBuilder) Store(ctx context.Context, db sqlstorage.Querier) {
 	f.t.Helper()
 
 	storage := newSqlStorage(db)
 
+	err := storage.Save(ctx, f.fileMeta)
+	require.NoError(f.t, err)
+}
+
+func (f *FakeFileMetaBuilder) BuildAndStore(ctx context.Context, db sqlstorage.Querier) *FileMeta {
+	f.t.Helper()
+
 	fileMeta := f.Build()
 
-	err := storage.Save(ctx, fileMeta)
-	require.NoError(f.t, err)
+	f.Store(ctx, db)
 
 	return fileMeta
 }

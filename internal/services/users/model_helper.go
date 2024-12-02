@@ -15,8 +15,10 @@ import (
 )
 
 type FakeUserBuilder struct {
-	t    testing.TB
-	user *User
+	t             testing.TB
+	user          *User
+	roleBuilder   *roles.FakeRoleBuilder
+	avatarBuilder *medias.FakeFileMetaBuilder
 }
 
 func NewFakeUser(t testing.TB) *FakeUserBuilder {
@@ -26,7 +28,10 @@ func NewFakeUser(t testing.TB) *FakeUserBuilder {
 	createdAt := gofakeit.DateRange(time.Now().Add(-time.Hour*1000), time.Now())
 
 	return &FakeUserBuilder{
-		t: t,
+		t:             t,
+		roleBuilder:   roles.NewFakeRole(t),
+		avatarBuilder: medias.NewFakeFileMeta(t),
+
 		user: &User{
 			id:                uuidProvider.New(),
 			createdAt:         createdAt,
@@ -41,6 +46,12 @@ func NewFakeUser(t testing.TB) *FakeUserBuilder {
 	}
 }
 
+func (f *FakeUserBuilder) WithUsername(username string) *FakeUserBuilder {
+	f.user.username = username
+
+	return f
+}
+
 func (f *FakeUserBuilder) WithPassword(password string) *FakeUserBuilder {
 	f.user.password = secret.NewText(password)
 
@@ -49,6 +60,7 @@ func (f *FakeUserBuilder) WithPassword(password string) *FakeUserBuilder {
 
 func (f *FakeUserBuilder) WithAvatar(media *medias.FileMeta) *FakeUserBuilder {
 	f.user.avatar = media.ID()
+	f.avatarBuilder = nil
 
 	return f
 }
@@ -61,6 +73,7 @@ func (f *FakeUserBuilder) CreatedBy(user *User) *FakeUserBuilder {
 
 func (f *FakeUserBuilder) WithRole(role *roles.Role) *FakeUserBuilder {
 	f.user.role = role.Name()
+	f.roleBuilder = nil
 
 	return f
 }
@@ -72,18 +85,42 @@ func (f *FakeUserBuilder) WithStatus(status Status) *FakeUserBuilder {
 }
 
 func (f *FakeUserBuilder) Build() *User {
+	if f.roleBuilder != nil {
+		role := f.roleBuilder.Build()
+		f.user.role = role.Name()
+	}
+
+	if f.avatarBuilder != nil {
+		avatar := f.avatarBuilder.Build()
+		f.user.avatar = avatar.ID()
+	}
+
 	return f.user
+}
+
+func (f *FakeUserBuilder) Store(ctx context.Context, db sqlstorage.Querier) {
+	f.t.Helper()
+
+	storage := newSqlStorage(db)
+
+	if f.avatarBuilder != nil {
+		f.avatarBuilder.Store(ctx, db)
+	}
+
+	if f.roleBuilder != nil {
+		f.roleBuilder.Store(ctx, db)
+	}
+
+	err := storage.Save(ctx, f.user)
+	require.NoError(f.t, err)
 }
 
 func (f *FakeUserBuilder) BuildAndStore(ctx context.Context, db sqlstorage.Querier) *User {
 	f.t.Helper()
 
-	storage := newSqlStorage(db)
-
 	user := f.Build()
 
-	err := storage.Save(ctx, user)
-	require.NoError(f.t, err)
+	f.Store(ctx, db)
 
 	return user
 }

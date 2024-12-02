@@ -21,7 +21,7 @@ func NewFakeRole(t testing.TB) *FakeRoleBuilder {
 		t: t,
 		role: &Role{
 			name:        gofakeit.JobTitle(),
-			permissions: []Permission{},
+			permissions: DefaultUserRole.permissions,
 		},
 	}
 }
@@ -42,15 +42,21 @@ func (f *FakeRoleBuilder) Build() *Role {
 	return f.role
 }
 
-func (f *FakeRoleBuilder) BuildAndStore(ctx context.Context, db sqlstorage.Querier) *Role {
+func (f *FakeRoleBuilder) Store(ctx context.Context, db sqlstorage.Querier) {
 	f.t.Helper()
 
 	storage := newSqlStorage(db)
 
+	err := storage.Save(ctx, f.role)
+	require.NoError(f.t, err)
+}
+
+func (f *FakeRoleBuilder) BuildAndStore(ctx context.Context, db sqlstorage.Querier) *Role {
+	f.t.Helper()
+
 	role := f.Build()
 
-	err := storage.Save(ctx, role)
-	require.NoError(f.t, err)
+	f.Store(ctx, db)
 
 	return role
 }
