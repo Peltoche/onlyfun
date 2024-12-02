@@ -59,10 +59,8 @@ func (f *FakePostBuilder) BuildAndStore(ctx context.Context, db sqlstorage.Queri
 
 	post := f.Build()
 
-	id, err := storage.Save(ctx, post)
+	err := storage.Save(ctx, post)
 	require.NoError(f.t, err)
-
-	post.id = id
 
 	return post
 }

@@ -55,14 +55,14 @@ func TestPostSqlStorage(t *testing.T) {
 			CreatedBy(user).
 			Build()
 
+		oldPostID := post.ID()
+
 		// Run
-		id, err := store.Save(ctx, post)
+		err := store.Save(ctx, post)
 
 		// Asserts
 		require.NoError(t, err)
-		require.NotEqual(t, uint64(0), id)
-
-		post.id = id
+		require.NotEqual(t, oldPostID, post.ID())
 	})
 
 	t.Run("GetLatestPostWithStatus success", func(t *testing.T) {
