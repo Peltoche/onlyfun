@@ -72,6 +72,36 @@ func (_m *MockService) Create(ctx context.Context, cmd *CreateCmd) (*Post, error
 	return r0, r1
 }
 
+// GetByID provides a mock function with given fields: ctx, postID
+func (_m *MockService) GetByID(ctx context.Context, postID uint) (*Post, error) {
+	ret := _m.Called(ctx, postID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByID")
+	}
+
+	var r0 *Post
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint) (*Post, error)); ok {
+		return rf(ctx, postID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uint) *Post); ok {
+		r0 = rf(ctx, postID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Post)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {
+		r1 = rf(ctx, postID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetLatestPost provides a mock function with given fields: ctx
 func (_m *MockService) GetLatestPost(ctx context.Context) (*Post, error) {
 	ret := _m.Called(ctx)
@@ -133,7 +163,7 @@ func (_m *MockService) GetNextPostToModerate(ctx context.Context) (*Post, error)
 }
 
 // GetPosts provides a mock function with given fields: ctx, start, nbPosts
-func (_m *MockService) GetPosts(ctx context.Context, start uint64, nbPosts uint64) ([]Post, error) {
+func (_m *MockService) GetPosts(ctx context.Context, start uint, nbPosts uint) ([]Post, error) {
 	ret := _m.Called(ctx, start, nbPosts)
 
 	if len(ret) == 0 {
@@ -142,10 +172,10 @@ func (_m *MockService) GetPosts(ctx context.Context, start uint64, nbPosts uint6
 
 	var r0 []Post
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uint64, uint64) ([]Post, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint) ([]Post, error)); ok {
 		return rf(ctx, start, nbPosts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uint64, uint64) []Post); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint) []Post); ok {
 		r0 = rf(ctx, start, nbPosts)
 	} else {
 		if ret.Get(0) != nil {
@@ -153,7 +183,7 @@ func (_m *MockService) GetPosts(ctx context.Context, start uint64, nbPosts uint6
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uint64, uint64) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, uint, uint) error); ok {
 		r1 = rf(ctx, start, nbPosts)
 	} else {
 		r1 = ret.Error(1)
@@ -207,6 +237,24 @@ func (_m *MockService) SuscribeToNewPost() <-chan Post {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(<-chan Post)
 		}
+	}
+
+	return r0
+}
+
+// ValidatePost provides a mock function with given fields: ctx, cmd
+func (_m *MockService) ValidatePost(ctx context.Context, cmd *ValidatePostcmd) error {
+	ret := _m.Called(ctx, cmd)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ValidatePost")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *ValidatePostcmd) error); ok {
+		r0 = rf(ctx, cmd)
+	} else {
+		r0 = ret.Error(0)
 	}
 
 	return r0

@@ -28,7 +28,7 @@ func newSqlStorage(db sqlstorage.Querier) *sqlStorage {
 	return &sqlStorage{db}
 }
 
-func (s *sqlStorage) Save(ctx context.Context, roles *Role, perms []Permission) error {
+func (s *sqlStorage) Save(ctx context.Context, role *Role, perms []Permission) error {
 	var rawPerms strings.Builder
 	rawPerms.Grow(len(perms) * 15)
 
@@ -44,7 +44,7 @@ func (s *sqlStorage) Save(ctx context.Context, roles *Role, perms []Permission) 
 	_, err := sq.
 		Insert(tableName).
 		Columns(allFields...).
-		Values(roles, rawPerms.String()).
+		Values(role, rawPerms.String()).
 		RunWith(s.db).
 		ExecContext(ctx)
 	if err != nil {

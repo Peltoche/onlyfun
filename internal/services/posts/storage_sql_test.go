@@ -65,6 +65,34 @@ func TestPostSqlStorage(t *testing.T) {
 		require.NotEqual(t, oldPostID, post.ID())
 	})
 
+	t.Run("GetByID success", func(t *testing.T) {
+		t.Parallel()
+
+		db := sqlstorage.NewTestStorage(t)
+		store := newSqlStorage(db)
+
+		role, _ := perms.NewFakePermissions(t).BuildAndStore(ctx, db)
+		avatar := medias.NewFakeFileMeta(t).BuildAndStore(ctx, db)
+		user := users.NewFakeUser(t).WithRole(role).WithAvatar(avatar).BuildAndStore(ctx, db)
+		post := NewFakePost(t).CreatedBy(user).WithStatus(Listed).BuildAndStore(ctx, db)
+
+		res, err := store.GetByID(ctx, post.ID())
+
+		require.NoError(t, err)
+		require.Equal(t, post, res)
+	})
+
+	t.Run("GetByID not found", func(t *testing.T) {
+		t.Parallel()
+
+		db := sqlstorage.NewTestStorage(t)
+		store := newSqlStorage(db)
+
+		res, err := store.GetByID(ctx, 32) // doesn't exists
+		require.ErrorIs(t, err, errNotFound)
+		require.Nil(t, res)
+	})
+
 	t.Run("GetLatestPostWithStatus success", func(t *testing.T) {
 		t.Parallel()
 
@@ -93,7 +121,7 @@ func TestPostSqlStorage(t *testing.T) {
 		role, _ := perms.NewFakePermissions(t).BuildAndStore(ctx, db)
 		avatar := medias.NewFakeFileMeta(t).BuildAndStore(ctx, db)
 		user := users.NewFakeUser(t).WithRole(role).WithAvatar(avatar).BuildAndStore(ctx, db)
-		posts := make(map[uint64]Post, nbUsers)
+		posts := make(map[uint]Post, nbUsers)
 
 		for i := 0; i < nbUsers; i++ {
 			res := NewFakePost(t).CreatedBy(user).WithStatus(Listed).BuildAndStore(ctx, db)
@@ -133,7 +161,7 @@ func TestPostSqlStorage(t *testing.T) {
 		role, _ := perms.NewFakePermissions(t).BuildAndStore(ctx, db)
 		avatar := medias.NewFakeFileMeta(t).BuildAndStore(ctx, db)
 		user := users.NewFakeUser(t).WithRole(role).WithAvatar(avatar).BuildAndStore(ctx, db)
-		posts := make(map[uint64]Post, nbUsers)
+		posts := make(map[uint]Post, nbUsers)
 
 		for i := 0; i < nbUsers; i++ {
 			res := NewFakePost(t).CreatedBy(user).WithStatus(Listed).BuildAndStore(ctx, db)

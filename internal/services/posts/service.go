@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/Peltoche/onlyfun/internal/services/medias"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/services/users"
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/clock"
@@ -24,24 +25,29 @@ var ErrToMuchPostsAsked = errors.New("too much posts asks")
 type storage interface {
 	Save(ctx context.Context, post *Post) error
 	GetLatestPostWithStatus(ctx context.Context, status Status) (*Post, error)
-	GetListedPosts(ctx context.Context, start uint64, limit uint64) ([]Post, error)
+	GetOldestPostWithStatus(ctx context.Context, status Status) (*Post, error)
+	GetListedPosts(ctx context.Context, start uint, limit uint) ([]Post, error)
+	GetByID(ctx context.Context, postID uint) (*Post, error)
 	CountPostsWithStatus(ctx context.Context, status Status) (int, error)
 	CountUserPostsByStatus(ctx context.Context, userID uuid.UUID, status Status) (int, error)
+	Update(ctx context.Context, post *Post) error
 }
 
 type service struct {
 	storage      storage
-	medias       medias.Service
+	mediasSvc    medias.Service
+	permsSvc     perms.Service
 	clock        clock.Clock
 	uuid         uuid.Service
 	newPostChans []chan Post
 	l            *sync.Mutex
 }
 
-func newService(tools tools.Tools, posts storage, medias medias.Service) *service {
+func newService(tools tools.Tools, posts storage, mediasSvc medias.Service, permsSvc perms.Service) *service {
 	svc := &service{
 		storage:      posts,
-		medias:       medias,
+		mediasSvc:    mediasSvc,
+		permsSvc:     permsSvc,
 		clock:        tools.Clock(),
 		uuid:         tools.UUID(),
 		newPostChans: make([]chan Post, 0),
@@ -61,13 +67,41 @@ func (s *service) SuscribeToNewPost() <-chan Post {
 	return ch
 }
 
+func (s *service) GetByID(ctx context.Context, postID uint) (*Post, error) {
+	res, err := s.storage.GetByID(ctx, postID)
+	if errors.Is(err, errNotFound) {
+		return nil, errs.NotFound(fmt.Errorf("no post available"))
+	}
+
+	if err != nil {
+		return nil, errs.Internal(fmt.Errorf("failed to GetLatestPost: %w", err))
+	}
+
+	return res, nil
+}
+
+func (s *service) ValidatePost(ctx context.Context, cmd *ValidatePostcmd) error {
+	if !s.permsSvc.IsAuthorized(cmd.User, perms.Moderation) {
+		return errs.Unauthorized(fmt.Errorf("user %q doesn't have the authorization %q", cmd.User.ID(), perms.Moderation))
+	}
+
+	cmd.Post.status = Listed
+
+	err := s.storage.Update(ctx, cmd.Post)
+	if err != nil {
+		return fmt.Errorf("failed to Update post %d: %w", cmd.Post.id, err)
+	}
+
+	return nil
+}
+
 func (s *service) Create(ctx context.Context, cmd *CreateCmd) (*Post, error) {
 	err := cmd.Validate()
 	if err != nil {
 		return nil, errs.Validation(err)
 	}
 
-	meta, err := s.medias.Upload(ctx, medias.Post, cmd.Media)
+	meta, err := s.mediasSvc.Upload(ctx, medias.Post, cmd.Media)
 	if err != nil {
 		return nil, errs.Internal(fmt.Errorf("failed to upload the media: %w", err))
 	}
@@ -101,7 +135,7 @@ func (s *service) Create(ctx context.Context, cmd *CreateCmd) (*Post, error) {
 }
 
 func (s *service) GetNextPostToModerate(ctx context.Context) (*Post, error) {
-	res, err := s.storage.GetLatestPostWithStatus(ctx, Uploaded)
+	res, err := s.storage.GetOldestPostWithStatus(ctx, Uploaded)
 	if errors.Is(err, errNotFound) {
 		return nil, errs.NotFound(fmt.Errorf("no post available"))
 	}
@@ -152,7 +186,7 @@ func (s *service) CountPostsWaitingModeration(ctx context.Context) (int, error) 
 	return res, nil
 }
 
-func (s *service) GetPosts(ctx context.Context, start uint64, nbPosts uint64) ([]Post, error) {
+func (s *service) GetPosts(ctx context.Context, start uint, nbPosts uint) ([]Post, error) {
 	if nbPosts > maxPostBatchSize {
 		return nil, errs.Validation(ErrToMuchPostsAsked)
 	}
