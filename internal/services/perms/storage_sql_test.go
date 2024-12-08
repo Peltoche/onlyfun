@@ -1,4 +1,4 @@
-package roles
+package perms
 
 import (
 	"context"
@@ -14,14 +14,16 @@ func TestRoleSqlStorage(t *testing.T) {
 
 	ctx := context.Background()
 
-	t.Run("GetByID not found", func(t *testing.T) {
+	t.Run("GetPermissions not found", func(t *testing.T) {
 		t.Parallel()
 
 		db := sqlstorage.NewTestStorage(t)
 		store := newSqlStorage(db)
 
+		role := Role("some-invalid-id")
+
 		// Run
-		res, err := store.GetByName(ctx, "some-invalid-id")
+		res, err := store.GetPermissions(ctx, &role)
 
 		// Asserts
 		assert.Nil(t, res)
@@ -34,13 +36,11 @@ func TestRoleSqlStorage(t *testing.T) {
 		db := sqlstorage.NewTestStorage(t)
 		store := newSqlStorage(db)
 
-		role := NewFakeRole(t).
-			WithName("admin").
-			WithPermissions(UploadPost, Moderation).
-			Build()
+		role := Role("admin")
+		permissions := []Permission{UploadPost, Moderation}
 
 		// Run
-		err := store.Save(ctx, role)
+		err := store.Save(ctx, &role, permissions)
 
 		// Asserts
 		require.NoError(t, err)
@@ -52,17 +52,17 @@ func TestRoleSqlStorage(t *testing.T) {
 		db := sqlstorage.NewTestStorage(t)
 		store := newSqlStorage(db)
 
-		role := NewFakeRole(t).
+		role, permissions := NewFakePermissions(t).
 			WithName("admin").
 			WithPermissions(UploadPost, Moderation).
 			BuildAndStore(ctx, db)
 
 		// Run
-		res, err := store.GetByName(ctx, role.Name())
+		res, err := store.GetPermissions(ctx, role)
 
 		// Asserts
 		require.NoError(t, err)
-		require.Equal(t, role, res)
+		require.Equal(t, permissions, res)
 	})
 
 	t.Run("GetAll success", func(t *testing.T) {
@@ -71,7 +71,7 @@ func TestRoleSqlStorage(t *testing.T) {
 		db := sqlstorage.NewTestStorage(t)
 		store := newSqlStorage(db)
 
-		role := NewFakeRole(t).
+		role, permissions := NewFakePermissions(t).
 			WithName("admin").
 			WithPermissions(UploadPost, Moderation).
 			BuildAndStore(ctx, db)
@@ -81,6 +81,8 @@ func TestRoleSqlStorage(t *testing.T) {
 
 		// Asserts
 		require.NoError(t, err)
-		require.Equal(t, []Role{*role}, res)
+		require.Equal(t, map[Role][]Permission{
+			*role: permissions,
+		}, res)
 	})
 }

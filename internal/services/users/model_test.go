@@ -3,7 +3,7 @@ package users
 import (
 	"testing"
 
-	"github.com/Peltoche/onlyfun/internal/services/roles"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/tools/secret"
 	"github.com/Peltoche/onlyfun/internal/tools/uuid"
 	v "github.com/go-ozzo/ozzo-validation/v4"
@@ -29,9 +29,11 @@ func Test_CreateCmd_is_validatable(t *testing.T) {
 }
 
 func Test_CreateCmd_Validate_success(t *testing.T) {
+	role, _ := perms.NewFakePermissions(t).Build()
+
 	err := CreateCmd{
 		CreatedBy: NewFakeUser(t).Build(),
-		Role:      roles.NewFakeRole(t).Build(),
+		Role:      role,
 		Username:  "some-username",
 		Password:  secret.NewText("myLittleSecret"),
 	}.Validate()

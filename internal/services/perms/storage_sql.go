@@ -1,4 +1,4 @@
-package roles
+package perms
 
 import (
 	"context"
@@ -12,13 +12,13 @@ import (
 )
 
 const (
-	tableName     = "roles"
+	tableName     = "permissions"
 	permSeparator = ","
 )
 
 var errNotFound = errors.New("not found")
 
-var allFields = []string{"name", "permissions"}
+var allFields = []string{"role", "permissions"}
 
 type sqlStorage struct {
 	db sqlstorage.Querier
@@ -28,14 +28,14 @@ func newSqlStorage(db sqlstorage.Querier) *sqlStorage {
 	return &sqlStorage{db}
 }
 
-func (s *sqlStorage) Save(ctx context.Context, r *Role) error {
+func (s *sqlStorage) Save(ctx context.Context, roles *Role, perms []Permission) error {
 	var rawPerms strings.Builder
-	rawPerms.Grow(len(r.permissions) * 15)
+	rawPerms.Grow(len(perms) * 15)
 
-	if len(r.permissions) > 0 {
-		rawPerms.WriteString(string(r.permissions[0]))
+	if len(perms) > 0 {
+		rawPerms.WriteString(string(perms[0]))
 
-		for _, p := range r.permissions[1:] {
+		for _, p := range perms[1:] {
 			rawPerms.WriteString(permSeparator)
 			rawPerms.WriteString(string(p))
 		}
@@ -44,7 +44,7 @@ func (s *sqlStorage) Save(ctx context.Context, r *Role) error {
 	_, err := sq.
 		Insert(tableName).
 		Columns(allFields...).
-		Values(r.name, rawPerms.String()).
+		Values(roles, rawPerms.String()).
 		RunWith(s.db).
 		ExecContext(ctx)
 	if err != nil {
@@ -54,7 +54,7 @@ func (s *sqlStorage) Save(ctx context.Context, r *Role) error {
 	return nil
 }
 
-func (s *sqlStorage) GetAll(ctx context.Context) ([]Role, error) {
+func (s *sqlStorage) GetAll(ctx context.Context) (map[Role][]Permission, error) {
 	rows, err := sq.
 		Select(allFields...).
 		From(tableName).
@@ -64,46 +64,42 @@ func (s *sqlStorage) GetAll(ctx context.Context) ([]Role, error) {
 		return nil, fmt.Errorf("sql error: %w", err)
 	}
 
-	roles := []Role{}
+	res := map[Role][]Permission{}
 	for rows.Next() {
-		var res Role
-
+		var role Role
 		var rawPerms string
 
 		err := rows.Scan(
-			&res.name,
+			&role,
 			&rawPerms)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan a row: %w", err)
 		}
 
+		var permissions []Permission
 		for _, permStr := range strings.Split(rawPerms, permSeparator) {
-			res.permissions = append(res.permissions, Permission(permStr))
+			permissions = append(permissions, Permission(permStr))
 		}
 
-		roles = append(roles, res)
+		res[role] = permissions
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("scan error: %w", err)
 	}
 
-	return roles, nil
+	return res, nil
 }
 
-func (s *sqlStorage) GetByName(ctx context.Context, roleName string) (*Role, error) {
-	res := Role{}
-
+func (s *sqlStorage) GetPermissions(ctx context.Context, role *Role) ([]Permission, error) {
 	var rawPerms string
 
 	err := sq.
-		Select(allFields...).
+		Select(allFields[1:]...). // skip the role, it's already given
 		From(tableName).
-		Where(sq.Eq{"name": roleName}).
+		Where(sq.Eq{"role": role}).
 		RunWith(s.db).
-		ScanContext(ctx,
-			&res.name,
-			&rawPerms)
+		ScanContext(ctx, &rawPerms)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, errNotFound
 	}
@@ -112,9 +108,10 @@ func (s *sqlStorage) GetByName(ctx context.Context, roleName string) (*Role, err
 		return nil, fmt.Errorf("sql error: %w", err)
 	}
 
+	var permissions []Permission
 	for _, permStr := range strings.Split(rawPerms, permSeparator) {
-		res.permissions = append(res.permissions, Permission(permStr))
+		permissions = append(permissions, Permission(permStr))
 	}
 
-	return &res, nil
+	return permissions, nil
 }

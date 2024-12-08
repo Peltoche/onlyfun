@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/Peltoche/onlyfun/internal/services/medias"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/services/posts"
-	"github.com/Peltoche/onlyfun/internal/services/roles"
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/errs"
 	"github.com/Peltoche/onlyfun/internal/tools/router"
@@ -25,7 +25,7 @@ import (
 const postPagination = 50
 
 type ListingPage struct {
-	roles      roles.Service
+	roles      perms.Service
 	auth       *auth.Authenticator
 	posts      posts.Service
 	medias     medias.Service
@@ -39,7 +39,7 @@ func NewListingPage(
 	ctx context.Context,
 	html html.Writer,
 	posts posts.Service,
-	roles roles.Service,
+	roles perms.Service,
 	auth *auth.Authenticator,
 	medias medias.Service,
 	tools tools.Tools,
@@ -104,7 +104,7 @@ func (h *ListingPage) printPage(w http.ResponseWriter, r *http.Request) {
 	h.html.WriteHTMLTemplate(w, r, http.StatusOK, &home.ListingPageTmpl{
 		Header: &partials.HeaderTmpl{
 			User:        user,
-			CanModerate: user != nil && h.roles.IsRoleAuthorized(user.Role(), roles.Moderation),
+			CanModerate: user != nil && h.roles.IsAuthorized(user, perms.Moderation),
 			PostButton:  true,
 		},
 		Posts: posts,

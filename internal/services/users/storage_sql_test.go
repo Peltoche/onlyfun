@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/Peltoche/onlyfun/internal/services/medias"
-	"github.com/Peltoche/onlyfun/internal/services/roles"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/tools/sqlstorage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -33,7 +33,7 @@ func Test_Users_SqlStorage(t *testing.T) {
 		db := sqlstorage.NewTestStorage(t)
 		store := newSqlStorage(db)
 
-		role := roles.NewFakeRole(t).BuildAndStore(ctx, db)
+		role, _ := perms.NewFakePermissions(t).BuildAndStore(ctx, db)
 		avatar := medias.NewFakeFileMeta(t).BuildAndStore(ctx, db)
 		user := NewFakeUser(t).WithRole(role).WithAvatar(avatar).Build()
 

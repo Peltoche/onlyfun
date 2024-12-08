@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/Peltoche/onlyfun/internal/services/medias"
-	"github.com/Peltoche/onlyfun/internal/services/roles"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/errs"
 	"github.com/Peltoche/onlyfun/internal/tools/secret"
@@ -28,7 +28,7 @@ func Test_Users_Service(t *testing.T) {
 		services := newService(tools, storage, mediasSvc)
 
 		// Data
-		role := roles.NewFakeRole(t).Build()
+		role, _ := perms.NewFakePermissions(t).Build()
 		avatar := medias.NewFakeFileMeta(t).Build()
 		user := NewFakeUser(t).Build()
 		newUser := NewFakeUser(t).
@@ -71,7 +71,7 @@ func Test_Users_Service(t *testing.T) {
 		services := newService(tools, storage, medias)
 
 		// Data
-		role := roles.NewFakeRole(t).Build()
+		role, _ := perms.NewFakePermissions(t).Build()
 		user := NewFakeUser(t).Build()
 
 		// Mocks
@@ -99,7 +99,7 @@ func Test_Users_Service(t *testing.T) {
 		services := newService(tools, storage, medias)
 
 		// Data
-		role := roles.NewFakeRole(t).Build()
+		role, _ := perms.NewFakePermissions(t).Build()
 		user := NewFakeUser(t).Build()
 
 		// Mocks

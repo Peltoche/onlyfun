@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Peltoche/onlyfun/internal/services/roles"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/tools/router"
 	"go.uber.org/fx"
 )
 
 func Run(ctx context.Context, cfg Config) (os.Signal, error) {
 	// Start server with the HTTP server.
-	app := start(ctx, cfg, fx.Invoke(func(*router.API, roles.Service) {}))
+	app := start(ctx, cfg, fx.Invoke(func(*router.API, perms.Service) {}))
 
 	if err := app.Err(); err != nil {
 		return nil, err

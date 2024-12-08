@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/Peltoche/onlyfun/internal/services/medias"
-	"github.com/Peltoche/onlyfun/internal/services/roles"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/services/users"
 	"github.com/Peltoche/onlyfun/internal/tools/secret"
 	"github.com/Peltoche/onlyfun/internal/tools/sqlstorage"
@@ -18,7 +18,7 @@ func TestSessionSqlStorage(t *testing.T) {
 	storage := newSQLStorage(db)
 	ctx := context.Background()
 
-	role := roles.NewFakeRole(t).BuildAndStore(ctx, db)
+	role, _ := perms.NewFakePermissions(t).BuildAndStore(ctx, db)
 	avatar := medias.NewFakeFileMeta(t).BuildAndStore(ctx, db)
 	user := users.NewFakeUser(t).WithRole(role).WithAvatar(avatar).BuildAndStore(ctx, db)
 	sessionToken := "some-token"

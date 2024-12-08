@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/Peltoche/onlyfun/internal/services/medias"
-	"github.com/Peltoche/onlyfun/internal/services/roles"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/services/users"
 	"github.com/Peltoche/onlyfun/internal/tools/sqlstorage"
 	"github.com/stretchr/testify/require"
@@ -48,7 +48,7 @@ func TestPostSqlStorage(t *testing.T) {
 		db := sqlstorage.NewTestStorage(t)
 		store := newSqlStorage(db)
 
-		role := roles.NewFakeRole(t).BuildAndStore(ctx, db)
+		role, _ := perms.NewFakePermissions(t).BuildAndStore(ctx, db)
 		avatar := medias.NewFakeFileMeta(t).BuildAndStore(ctx, db)
 		user := users.NewFakeUser(t).WithRole(role).WithAvatar(avatar).BuildAndStore(ctx, db)
 		post := NewFakePost(t).
@@ -71,7 +71,7 @@ func TestPostSqlStorage(t *testing.T) {
 		db := sqlstorage.NewTestStorage(t)
 		store := newSqlStorage(db)
 
-		role := roles.NewFakeRole(t).BuildAndStore(ctx, db)
+		role, _ := perms.NewFakePermissions(t).BuildAndStore(ctx, db)
 		avatar := medias.NewFakeFileMeta(t).BuildAndStore(ctx, db)
 		user := users.NewFakeUser(t).WithRole(role).WithAvatar(avatar).BuildAndStore(ctx, db)
 		post := NewFakePost(t).CreatedBy(user).WithStatus(Listed).BuildAndStore(ctx, db)
@@ -90,7 +90,7 @@ func TestPostSqlStorage(t *testing.T) {
 		store := newSqlStorage(db)
 
 		nbUsers := 25
-		role := roles.NewFakeRole(t).BuildAndStore(ctx, db)
+		role, _ := perms.NewFakePermissions(t).BuildAndStore(ctx, db)
 		avatar := medias.NewFakeFileMeta(t).BuildAndStore(ctx, db)
 		user := users.NewFakeUser(t).WithRole(role).WithAvatar(avatar).BuildAndStore(ctx, db)
 		posts := make(map[uint64]Post, nbUsers)
@@ -130,7 +130,7 @@ func TestPostSqlStorage(t *testing.T) {
 		store := newSqlStorage(db)
 
 		nbUsers := 25
-		role := roles.NewFakeRole(t).BuildAndStore(ctx, db)
+		role, _ := perms.NewFakePermissions(t).BuildAndStore(ctx, db)
 		avatar := medias.NewFakeFileMeta(t).BuildAndStore(ctx, db)
 		user := users.NewFakeUser(t).WithRole(role).WithAvatar(avatar).BuildAndStore(ctx, db)
 		posts := make(map[uint64]Post, nbUsers)
@@ -165,7 +165,7 @@ func TestPostSqlStorage(t *testing.T) {
 		nbListed := 5
 		nbUploaded := 5
 
-		role := roles.NewFakeRole(t).BuildAndStore(ctx, db)
+		role, _ := perms.NewFakePermissions(t).BuildAndStore(ctx, db)
 		avatar := medias.NewFakeFileMeta(t).BuildAndStore(ctx, db)
 		user := users.NewFakeUser(t).WithRole(role).WithAvatar(avatar).BuildAndStore(ctx, db)
 
