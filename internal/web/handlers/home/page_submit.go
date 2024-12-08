@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/services/posts"
-	"github.com/Peltoche/onlyfun/internal/services/roles"
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/router"
 	"github.com/Peltoche/onlyfun/internal/web/handlers/auth"
@@ -18,7 +18,7 @@ import (
 
 type SubmitPage struct {
 	posts posts.Service
-	roles roles.Service
+	roles perms.Service
 	auth  *auth.Authenticator
 	html  html.Writer
 }
@@ -27,7 +27,7 @@ func NewSubmitPage(
 	html html.Writer,
 	auth *auth.Authenticator,
 	posts posts.Service,
-	roles roles.Service,
+	roles perms.Service,
 	tools tools.Tools,
 ) *SubmitPage {
 	return &SubmitPage{
@@ -62,7 +62,7 @@ func (h *SubmitPage) printPage(w http.ResponseWriter, r *http.Request) {
 	h.html.WriteHTMLTemplate(w, r, http.StatusOK, &home.SubmitPageTmpl{
 		Header: &partials.HeaderTmpl{
 			User:        user,
-			CanModerate: h.roles.IsRoleAuthorized(user.Role(), roles.Moderation),
+			CanModerate: h.roles.IsAuthorized(user, perms.Moderation),
 			PostButton:  true,
 		},
 	})

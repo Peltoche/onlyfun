@@ -1,4 +1,4 @@
-package roles
+package perms
 
 import (
 	"context"
@@ -14,9 +14,9 @@ import (
 var ErrInvalidRoleName = fmt.Errorf("invalid role name")
 
 type storage interface {
-	Save(ctx context.Context, r *Role) error
-	GetAll(ctx context.Context) ([]Role, error)
-	GetByName(ctx context.Context, roleName string) (*Role, error)
+	Save(ctx context.Context, roles *Role, perms []Permission) error
+	GetAll(ctx context.Context) (map[Role][]Permission, error)
+	GetPermissions(ctx context.Context, roles *Role) ([]Permission, error)
 }
 
 type service struct {
@@ -25,8 +25,8 @@ type service struct {
 	uuid    uuid.Service
 	logger  *slog.Logger
 
-	roles map[string]Role
-	lock  *sync.RWMutex
+	permsByRole map[Role][]Permission
+	lock        *sync.RWMutex
 }
 
 func newService(tools tools.Tools, storage storage) *service {
@@ -36,8 +36,8 @@ func newService(tools tools.Tools, storage storage) *service {
 		uuid:    tools.UUID(),
 		logger:  tools.Logger(),
 
-		roles: map[string]Role{},
-		lock:  new(sync.RWMutex),
+		permsByRole: map[Role][]Permission{},
+		lock:        new(sync.RWMutex),
 	}
 }
 
@@ -62,23 +62,29 @@ func (s *service) bootstrap(ctx context.Context) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	for _, r := range roles {
-		s.roles[r.name] = r
+	for role, perms := range roles {
+		s.permsByRole[role] = perms
 	}
 
 	return nil
 }
 
-func (s *service) IsRoleAuthorized(roleName string, askedPerm Permission) bool {
+func (s *service) IsAuthorized(withRole WithRole, askedPerm Permission) bool {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 
-	role, ok := s.roles[roleName]
+	role := withRole.Role()
+
+	if role == nil {
+		return false
+	}
+
+	permissions, ok := s.permsByRole[*role]
 	if !ok {
 		return false
 	}
 
-	for _, perm := range role.permissions {
+	for _, perm := range permissions {
 		if perm == askedPerm {
 			return true
 		}
@@ -88,23 +94,14 @@ func (s *service) IsRoleAuthorized(roleName string, askedPerm Permission) bool {
 }
 
 func (s *service) createDefaultRoles(ctx context.Context) error {
-	err := s.storage.Save(ctx, &DefaultAdminRole)
-	if err != nil {
-		return fmt.Errorf("failed to save the DefaultAdminRole: %w", err)
-	}
-	s.logger.Info(fmt.Sprintf("Default role %q created", DefaultAdminRole.name))
+	for role, permissions := range DefaultRoles {
+		err := s.storage.Save(ctx, &role, permissions)
+		if err != nil {
+			return fmt.Errorf("failed to save the role %q: %w", role, err)
+		}
 
-	err = s.storage.Save(ctx, &DefaultModeratorRole)
-	if err != nil {
-		return fmt.Errorf("failed to save the DefaultModeratorRole: %w", err)
+		s.logger.Info(fmt.Sprintf("role %q created", role))
 	}
-	s.logger.Info(fmt.Sprintf("Default role %q created", DefaultModeratorRole.name))
-
-	err = s.storage.Save(ctx, &DefaultUserRole)
-	if err != nil {
-		return fmt.Errorf("failed to save the DefaultUserRole: %w", err)
-	}
-	s.logger.Info(fmt.Sprintf("Default role %q created", DefaultUserRole.name))
 
 	return nil
 }

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/Peltoche/onlyfun/internal/services/medias"
-	"github.com/Peltoche/onlyfun/internal/services/roles"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/tools/secret"
 	"github.com/Peltoche/onlyfun/internal/tools/sqlstorage"
 	"github.com/Peltoche/onlyfun/internal/tools/uuid"
@@ -17,7 +17,7 @@ import (
 type FakeUserBuilder struct {
 	t             testing.TB
 	user          *User
-	roleBuilder   *roles.FakeRoleBuilder
+	roleBuilder   *perms.FakePermissionsBuilder
 	avatarBuilder *medias.FakeFileMetaBuilder
 }
 
@@ -29,14 +29,14 @@ func NewFakeUser(t testing.TB) *FakeUserBuilder {
 
 	return &FakeUserBuilder{
 		t:             t,
-		roleBuilder:   roles.NewFakeRole(t),
+		roleBuilder:   perms.NewFakePermissions(t),
 		avatarBuilder: medias.NewFakeFileMeta(t),
 
 		user: &User{
 			id:                uuidProvider.New(),
 			createdAt:         createdAt,
 			passwordChangedAt: createdAt,
-			role:              "user",
+			role:              nil,
 			username:          gofakeit.Username(),
 			avatar:            uuidProvider.New(),
 			password:          secret.NewText(gofakeit.Password(true, true, true, false, false, 8)),
@@ -71,8 +71,8 @@ func (f *FakeUserBuilder) CreatedBy(user *User) *FakeUserBuilder {
 	return f
 }
 
-func (f *FakeUserBuilder) WithRole(role *roles.Role) *FakeUserBuilder {
-	f.user.role = role.Name()
+func (f *FakeUserBuilder) WithRole(role *perms.Role) *FakeUserBuilder {
+	f.user.role = role
 	f.roleBuilder = nil
 
 	return f
@@ -86,8 +86,8 @@ func (f *FakeUserBuilder) WithStatus(status Status) *FakeUserBuilder {
 
 func (f *FakeUserBuilder) Build() *User {
 	if f.roleBuilder != nil {
-		role := f.roleBuilder.Build()
-		f.user.role = role.Name()
+		role, _ := f.roleBuilder.Build()
+		f.user.role = role
 	}
 
 	if f.avatarBuilder != nil {

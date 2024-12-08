@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/Peltoche/onlyfun/internal/services/roles"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/tools/secret"
 	"github.com/Peltoche/onlyfun/internal/tools/uuid"
 	v "github.com/go-ozzo/ozzo-validation"
@@ -32,7 +32,7 @@ type User struct {
 	id                uuid.UUID
 	username          string
 	password          secret.Text
-	role              string
+	role              *perms.Role
 	status            Status
 	avatar            uuid.UUID // Media's id
 	createdBy         uuid.UUID
@@ -40,7 +40,7 @@ type User struct {
 
 func (u User) ID() uuid.UUID                { return u.id }
 func (u User) Username() string             { return u.username }
-func (u User) Role() string                 { return u.role }
+func (u User) Role() *perms.Role            { return u.role }
 func (u User) Status() Status               { return u.status }
 func (u User) PasswordChangedAt() time.Time { return u.passwordChangedAt }
 func (u User) Avatar() uuid.UUID            { return u.avatar }
@@ -50,7 +50,7 @@ func (u User) CreatedBy() uuid.UUID         { return u.createdBy }
 // CreateCmd represents an user creation request.
 type CreateCmd struct {
 	CreatedBy *User
-	Role      *roles.Role
+	Role      *perms.Role
 	Username  string
 	Password  secret.Text
 }

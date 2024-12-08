@@ -10,11 +10,12 @@ import (
 	"github.com/o1egl/govatar"
 
 	"github.com/Peltoche/onlyfun/internal/services/medias"
-	"github.com/Peltoche/onlyfun/internal/services/roles"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/clock"
 	"github.com/Peltoche/onlyfun/internal/tools/errs"
 	"github.com/Peltoche/onlyfun/internal/tools/password"
+	"github.com/Peltoche/onlyfun/internal/tools/ptr"
 	"github.com/Peltoche/onlyfun/internal/tools/secret"
 	"github.com/Peltoche/onlyfun/internal/tools/sqlstorage"
 	"github.com/Peltoche/onlyfun/internal/tools/uuid"
@@ -67,7 +68,7 @@ func (s *services) Bootstrap(ctx context.Context, cmd *BootstrapCmd) (*User, err
 	}
 
 	newUserID := s.uuid.New()
-	return s.createUser(ctx, newUserID, &roles.DefaultAdminRole, cmd.Username, cmd.Password, newUserID)
+	return s.createUser(ctx, newUserID, ptr.To(perms.DefaultAdminRole), cmd.Username, cmd.Password, newUserID)
 }
 
 // Create will create and register a new user.
@@ -93,7 +94,7 @@ func (s *services) Create(ctx context.Context, cmd *CreateCmd) (*User, error) {
 func (s *services) createUser(
 	ctx context.Context,
 	newUserID uuid.UUID,
-	role *roles.Role,
+	role *perms.Role,
 	username string,
 	password secret.Text,
 	createdBy uuid.UUID,
@@ -123,7 +124,7 @@ func (s *services) createUser(
 
 	user := User{
 		id:                newUserID,
-		role:              role.Name(),
+		role:              role,
 		username:          username,
 		password:          hashedPassword,
 		status:            Active,

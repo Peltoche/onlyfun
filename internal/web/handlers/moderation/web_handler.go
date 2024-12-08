@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/Peltoche/onlyfun/internal/services/medias"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/services/posts"
-	"github.com/Peltoche/onlyfun/internal/services/roles"
 	"github.com/Peltoche/onlyfun/internal/services/users"
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/errs"
@@ -25,7 +25,7 @@ type ModerationHandler struct {
 	posts  posts.Service
 	medias medias.Service
 	users  users.Service
-	roles  roles.Service
+	roles  perms.Service
 	html   html.Writer
 }
 
@@ -35,7 +35,7 @@ func NewModerationHandler(
 	auth *auth.Authenticator,
 	posts posts.Service,
 	users users.Service,
-	roles roles.Service,
+	roles perms.Service,
 	medias medias.Service,
 	tools tools.Tools,
 ) *ModerationHandler {
@@ -72,7 +72,7 @@ func (h *ModerationHandler) printOverviewPage(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if !h.roles.IsRoleAuthorized(user.Role(), roles.Moderation) {
+	if !h.roles.IsAuthorized(user, perms.Moderation) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -86,7 +86,7 @@ func (h *ModerationHandler) printOverviewPage(w http.ResponseWriter, r *http.Req
 	h.html.WriteHTMLTemplate(w, r, http.StatusOK, &moderation.OverviewPageTmpl{
 		Header: &partials.HeaderTmpl{
 			User:        user,
-			CanModerate: h.roles.IsRoleAuthorized(user.Role(), roles.Moderation),
+			CanModerate: h.roles.IsAuthorized(user, perms.Moderation),
 			PostButton:  false,
 		},
 
@@ -108,7 +108,7 @@ func (h *ModerationHandler) printPostsPage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if !h.roles.IsRoleAuthorized(user.Role(), roles.Moderation) {
+	if !h.roles.IsAuthorized(user, perms.Moderation) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -146,7 +146,7 @@ func (h *ModerationHandler) printPostsPage(w http.ResponseWriter, r *http.Reques
 	h.html.WriteHTMLTemplate(w, r, http.StatusOK, &moderation.NextPostsPageTmpl{
 		Header: &partials.HeaderTmpl{
 			User:        user,
-			CanModerate: h.roles.IsRoleAuthorized(user.Role(), roles.Moderation),
+			CanModerate: h.roles.IsAuthorized(user, perms.Moderation),
 			PostButton:  false,
 		},
 
