@@ -23,7 +23,7 @@ require (
 	github.com/unrolled/render v1.7.0
 	go.uber.org/fx v1.23.0
 	golang.org/x/crypto v0.29.0
-	golang.org/x/sync v0.9.0
+	golang.org/x/sync v0.10.0
 	golang.org/x/text v0.20.0
 )
 
