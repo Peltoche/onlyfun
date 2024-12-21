@@ -28,7 +28,7 @@
   <main class="container">
 
     <div class="row justify-content-evenly">
-      <div class="card mt-5 align-self-center col-12 col-sm-9 col-md-6 col-lg-4">
+      <div class="card mt-5 align-self-center col-12 col-sm-9 col-md-6 col-lg-5">
         <div class="card-header">
           {{.Author.Username}}
         </div>
@@ -38,7 +38,23 @@
 
         </div>
 
-        <div class="card-footer">Check</div>
+        <div class="card-footer">
+          <form method="POST" action="/moderation/posts/{{.Post.ID}}">
+            <div class="row">
+              <button name="accepted" value="true" class="btn btn-success btn-block">9. Accept</button>
+            </div>
+            <div class="row mt-3">
+              <div class="btn-group" role="group">
+                <button name="reason" value="not-funny" class="btn btn-outline-danger">1<br>Not
+                  Funny</button>
+                <button name="reason" value="political" class="btn btn-outline-danger">2<br>Political</button>
+                <button name="reason" value="spam" class="btn btn-outline-danger">3<br>Spam</button>
+                <button name="reason" value="not-english" class="btn btn-outline-danger">4<br>Not
+                  English</button>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
 
       <div class="card mt-5 align-self-center col-12 col-sm-9 col-md-6">

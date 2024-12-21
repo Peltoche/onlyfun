@@ -70,6 +70,36 @@ func (_m *mockStorage) CountUserPostsByStatus(ctx context.Context, userID uuid.U
 	return r0, r1
 }
 
+// GetByID provides a mock function with given fields: ctx, postID
+func (_m *mockStorage) GetByID(ctx context.Context, postID uint) (*Post, error) {
+	ret := _m.Called(ctx, postID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByID")
+	}
+
+	var r0 *Post
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint) (*Post, error)); ok {
+		return rf(ctx, postID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uint) *Post); ok {
+		r0 = rf(ctx, postID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Post)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {
+		r1 = rf(ctx, postID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetLatestPostWithStatus provides a mock function with given fields: ctx, status
 func (_m *mockStorage) GetLatestPostWithStatus(ctx context.Context, status Status) (*Post, error) {
 	ret := _m.Called(ctx, status)
@@ -101,7 +131,7 @@ func (_m *mockStorage) GetLatestPostWithStatus(ctx context.Context, status Statu
 }
 
 // GetListedPosts provides a mock function with given fields: ctx, start, limit
-func (_m *mockStorage) GetListedPosts(ctx context.Context, start uint64, limit uint64) ([]Post, error) {
+func (_m *mockStorage) GetListedPosts(ctx context.Context, start uint, limit uint) ([]Post, error) {
 	ret := _m.Called(ctx, start, limit)
 
 	if len(ret) == 0 {
@@ -110,10 +140,10 @@ func (_m *mockStorage) GetListedPosts(ctx context.Context, start uint64, limit u
 
 	var r0 []Post
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uint64, uint64) ([]Post, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint) ([]Post, error)); ok {
 		return rf(ctx, start, limit)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uint64, uint64) []Post); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint) []Post); ok {
 		r0 = rf(ctx, start, limit)
 	} else {
 		if ret.Get(0) != nil {
@@ -121,8 +151,38 @@ func (_m *mockStorage) GetListedPosts(ctx context.Context, start uint64, limit u
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uint64, uint64) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, uint, uint) error); ok {
 		r1 = rf(ctx, start, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetOldestPostWithStatus provides a mock function with given fields: ctx, status
+func (_m *mockStorage) GetOldestPostWithStatus(ctx context.Context, status Status) (*Post, error) {
+	ret := _m.Called(ctx, status)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOldestPostWithStatus")
+	}
+
+	var r0 *Post
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, Status) (*Post, error)); ok {
+		return rf(ctx, status)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, Status) *Post); ok {
+		r0 = rf(ctx, status)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Post)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, Status) error); ok {
+		r1 = rf(ctx, status)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -136,6 +196,24 @@ func (_m *mockStorage) Save(ctx context.Context, post *Post) error {
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *Post) error); ok {
+		r0 = rf(ctx, post)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Update provides a mock function with given fields: ctx, post
+func (_m *mockStorage) Update(ctx context.Context, post *Post) error {
+	ret := _m.Called(ctx, post)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
 	}
 
 	var r0 error

@@ -18,7 +18,7 @@ const (
 type Status string
 
 type Post struct {
-	id        uint64
+	id        uint
 	status    Status
 	title     string
 	fileID    uuid.UUID
@@ -26,7 +26,7 @@ type Post struct {
 	createdBy uuid.UUID
 }
 
-func (p Post) ID() uint64           { return p.id }
+func (p Post) ID() uint             { return p.id }
 func (p Post) Status() Status       { return p.status }
 func (p Post) Title() string        { return p.title }
 func (p Post) FileID() uuid.UUID    { return p.fileID }
@@ -45,4 +45,9 @@ func (t CreateCmd) Validate() error {
 		v.Field(&t.CreatedBy, v.Required),
 		v.Field(&t.Media, v.Required),
 	)
+}
+
+type ValidatePostcmd struct {
+	User *users.User
+	Post *Post
 }

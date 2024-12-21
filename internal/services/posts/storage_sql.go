@@ -27,7 +27,7 @@ func newSqlStorage(db sqlstorage.Querier) *sqlStorage {
 }
 
 func (s *sqlStorage) Save(ctx context.Context, p *Post) error {
-	var id uint64
+	var id uint
 
 	err := sq.
 		Insert(tableName).
@@ -50,42 +50,13 @@ func (s *sqlStorage) Save(ctx context.Context, p *Post) error {
 	return nil
 }
 
-func (s *sqlStorage) GetListedPosts(ctx context.Context, start uint64, limit uint64) ([]Post, error) {
-	rows, err := sq.
-		Select(allFields...).
-		From(tableName).
-		Where(
-			sq.LtOrEq{"id": start},
-			sq.Eq{"status": Listed},
-		).
-		OrderBy("id DESC").
-		Limit(limit).
-		RunWith(s.db).
-		QueryContext(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("sql error: %w", err)
-	}
-
-	return s.scanRows(rows)
-}
-
-func (s *sqlStorage) CountPostsWithStatus(ctx context.Context, status Status) (int, error) {
-	return s.countByKeys(ctx, sq.Eq{"status": status})
-}
-
-func (s *sqlStorage) CountUserPostsByStatus(ctx context.Context, userID uuid.UUID, status Status) (int, error) {
-	return s.countByKeys(ctx, sq.Eq{"created_by": userID, "status": status})
-}
-
-func (s *sqlStorage) GetLatestPostWithStatus(ctx context.Context, status Status) (*Post, error) {
+func (s *sqlStorage) GetByID(ctx context.Context, postID uint) (*Post, error) {
 	var res Post
 	var sqlCreatedAt sqlstorage.SQLTime
 
 	err := sq.Select(allFields...).
 		From(tableName).
-		Where(sq.Eq{"status": status}).
-		OrderBy("id DESC").
-		Limit(1).
+		Where(sq.Eq{"id": postID}).
 		RunWith(s.db).
 		ScanContext(ctx,
 			&res.id,
@@ -105,6 +76,100 @@ func (s *sqlStorage) GetLatestPostWithStatus(ctx context.Context, status Status)
 	res.createdAt = sqlCreatedAt.Time()
 
 	return &res, nil
+}
+
+func (s *sqlStorage) GetListedPosts(ctx context.Context, start uint, limit uint) ([]Post, error) {
+	rows, err := sq.
+		Select(allFields...).
+		From(tableName).
+		Where(
+			sq.And{
+				sq.LtOrEq{"id": start},
+				sq.Eq{"status": Listed},
+			},
+		).
+		OrderBy("id DESC").
+		Limit(uint64(limit)).
+		RunWith(s.db).
+		QueryContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("sql error: %w", err)
+	}
+
+	return s.scanRows(rows)
+}
+
+func (s *sqlStorage) CountPostsWithStatus(ctx context.Context, status Status) (int, error) {
+	return s.countByKeys(ctx, sq.Eq{"status": status})
+}
+
+func (s *sqlStorage) CountUserPostsByStatus(ctx context.Context, userID uuid.UUID, status Status) (int, error) {
+	return s.countByKeys(ctx, sq.Eq{"created_by": userID, "status": status})
+}
+
+func (s *sqlStorage) GetOldestPostWithStatus(ctx context.Context, status Status) (*Post, error) {
+	row := sq.Select(allFields...).
+		From(tableName).
+		Where(sq.Eq{"status": status}).
+		OrderBy("id").
+		Limit(1).
+		RunWith(s.db).
+		QueryRowContext(ctx)
+
+	return s.scanRow(row)
+}
+
+func (s *sqlStorage) GetLatestPostWithStatus(ctx context.Context, status Status) (*Post, error) {
+	row := sq.Select(allFields...).
+		From(tableName).
+		Where(sq.Eq{"status": status}).
+		OrderBy("id DESC").
+		Limit(1).
+		RunWith(s.db).
+		QueryRowContext(ctx)
+
+	return s.scanRow(row)
+}
+
+func (s *sqlStorage) scanRow(row sq.RowScanner) (*Post, error) {
+	var res Post
+	var sqlCreatedAt sqlstorage.SQLTime
+
+	err := row.Scan(
+		&res.id,
+		&res.status,
+		&res.title,
+		&res.fileID,
+		&sqlCreatedAt,
+		&res.createdBy,
+	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, errNotFound
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to scan row: %w", err)
+	}
+
+	res.createdAt = sqlCreatedAt.Time()
+
+	return &res, nil
+}
+
+func (s *sqlStorage) Update(ctx context.Context, post *Post) error {
+	_, err := sq.Update(tableName).
+		SetMap(map[string]any{
+			"status":  post.status,
+			"file_id": post.fileID,
+		}).
+		Where(sq.Eq{"id": post.id}).
+		RunWith(s.db).
+		ExecContext(ctx)
+	if err != nil {
+		return fmt.Errorf("sql error: %w", err)
+	}
+
+	return nil
 }
 
 func (s *sqlStorage) countByKeys(ctx context.Context, wheres ...any) (int, error) {

@@ -27,7 +27,7 @@ func NewFakePost(t testing.TB) *FakePostBuilder {
 	return &FakePostBuilder{
 		t: t,
 		post: &Post{
-			id:        gofakeit.Uint64(),
+			id:        gofakeit.Uint(),
 			status:    Uploaded,
 			title:     gofakeit.LoremIpsumSentence(4),
 			fileID:    uuidProvider.New(),

@@ -28,7 +28,7 @@ packages:
         config:
           mockname: "mock{{.InterfaceName | camelcase}}"
           filename: "{{.InterfaceName | camelcase | firstLower}}_mock_test.go"
-  github.com/Peltoche/onlyfun/internal/services/roles:
+  github.com/Peltoche/onlyfun/internal/services/perms:
     interfaces:
       Service:
         config:

@@ -10,6 +10,7 @@ import (
 	"github.com/Peltoche/onlyfun/assets"
 	"github.com/Peltoche/onlyfun/internal/migrations"
 	"github.com/Peltoche/onlyfun/internal/services/medias"
+	"github.com/Peltoche/onlyfun/internal/services/moderations"
 	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/services/posts"
 	"github.com/Peltoche/onlyfun/internal/services/users"
@@ -91,6 +92,7 @@ func start(ctx context.Context, cfg Config, invoke fx.Option) *fx.App {
 			fx.Annotate(posts.Init, fx.As(new(posts.Service))),
 			fx.Annotate(medias.Init, fx.As(new(medias.Service))),
 			fx.Annotate(perms.Init, fx.As(new(perms.Service))),
+			fx.Annotate(moderations.Init, fx.As(new(moderations.Service))),
 
 			// Middlewares
 			middlewares.NewBootstrapMiddleware,

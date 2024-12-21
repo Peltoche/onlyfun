@@ -7,6 +7,7 @@ import (
 
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/ptr"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -18,7 +19,7 @@ func (r *resourceWithRole) Role() *Role {
 	return r.role
 }
 
-func Test_Roles_Service(t *testing.T) {
+func Test_Perms_Service(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
@@ -81,8 +82,7 @@ func Test_Roles_Service(t *testing.T) {
 		storage := newMockStorage(t)
 		svc := newService(tools, storage)
 
-		storage.On("Save", ctx, ptr.To(DefaultAdminRole), DefaultRoles[DefaultAdminRole]).Return(nil).Once()
-		storage.On("Save", ctx, ptr.To(DefaultModeratorRole), DefaultRoles[DefaultModeratorRole]).Return(fmt.Errorf("some-error")).Once()
+		storage.On("Save", ctx, mock.Anything, mock.Anything).Return(fmt.Errorf("some-error")).Once()
 
 		err := svc.createDefaultRoles(ctx)
 		require.ErrorContains(t, err, "some-error")

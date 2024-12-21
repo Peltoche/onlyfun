@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Peltoche/onlyfun/internal/services/medias"
+	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/services/users"
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/errs"
@@ -21,7 +22,8 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		mediaContent := strings.NewReader("some-content")
 
@@ -45,11 +47,12 @@ func Test_Posts_Service(t *testing.T) {
 		require.Equal(t, post, res)
 	})
 
-	t.Run("Create with a validatio nerror", func(t *testing.T) {
+	t.Run("Create with a validation error", func(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		user := users.NewFakeUser(t).Build()
 		mediaContent := strings.NewReader("some-content")
@@ -67,7 +70,8 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		mediaContent := strings.NewReader("some-content")
 		user := users.NewFakeUser(t).Build()
@@ -88,7 +92,8 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		mediaContent := strings.NewReader("some-content")
 
@@ -113,28 +118,75 @@ func Test_Posts_Service(t *testing.T) {
 		require.Nil(t, res)
 	})
 
+	t.Run("GetByID success", func(t *testing.T) {
+		tools := tools.NewMock(t)
+		storage := newMockStorage(t)
+		mediasSvc := medias.NewMockService(t)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
+
+		post := NewFakePost(t).Build()
+
+		storage.On("GetByID", ctx, post.ID()).Return(post, nil).Once()
+
+		res, err := svc.GetByID(ctx, post.ID())
+		require.NoError(t, err)
+		require.Equal(t, post, res)
+	})
+
+	t.Run("GetByID not found", func(t *testing.T) {
+		tools := tools.NewMock(t)
+		storage := newMockStorage(t)
+		mediasSvc := medias.NewMockService(t)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
+
+		storage.On("GetByID", ctx, uint(32)).Return(nil, errNotFound).Once()
+
+		res, err := svc.GetByID(ctx, 32)
+		require.ErrorIs(t, err, errs.ErrNotFound)
+		require.Nil(t, res)
+	})
+
+	t.Run("GetByID with a storage error", func(t *testing.T) {
+		tools := tools.NewMock(t)
+		storage := newMockStorage(t)
+		mediasSvc := medias.NewMockService(t)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
+
+		storage.On("GetByID", ctx, uint(32)).Return(nil, fmt.Errorf("some-error")).Once()
+
+		res, err := svc.GetByID(ctx, 32)
+		require.ErrorIs(t, err, errs.ErrInternal)
+		require.ErrorContains(t, err, "some-error")
+		require.Nil(t, res)
+	})
+
 	t.Run("GetNextPostToModerate success", func(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		post := NewFakePost(t).Build()
 
-		storage.On("GetLatestPostWithStatus", ctx, Uploaded).Return(post, nil).Once()
+		storage.On("GetOldestPostWithStatus", ctx, Uploaded).Return(post, nil).Once()
 
 		res, err := svc.GetNextPostToModerate(ctx)
 		require.NoError(t, err)
 		require.Equal(t, post, res)
 	})
 
-	t.Run("GetNextPostToModerate not ofund", func(t *testing.T) {
+	t.Run("GetNextPostToModerate not fund", func(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
-		storage.On("GetLatestPostWithStatus", ctx, Uploaded).Return(nil, errNotFound).Once()
+		storage.On("GetOldestPostWithStatus", ctx, Uploaded).Return(nil, errNotFound).Once()
 
 		res, err := svc.GetNextPostToModerate(ctx)
 		require.ErrorIs(t, err, errs.ErrNotFound)
@@ -145,9 +197,10 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
-		storage.On("GetLatestPostWithStatus", ctx, Uploaded).Return(nil, fmt.Errorf("some-error")).Once()
+		storage.On("GetOldestPostWithStatus", ctx, Uploaded).Return(nil, fmt.Errorf("some-error")).Once()
 
 		res, err := svc.GetNextPostToModerate(ctx)
 		require.ErrorIs(t, err, errs.ErrInternal)
@@ -159,7 +212,8 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		user := users.NewFakeUser(t).Build()
 
@@ -180,7 +234,8 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		user := users.NewFakeUser(t).Build()
 
@@ -197,7 +252,8 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		post := NewFakePost(t).Build()
 
@@ -212,7 +268,8 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		storage.On("GetLatestPostWithStatus", ctx, Listed).Return(nil, errNotFound).Once()
 
@@ -225,7 +282,8 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		storage.On("GetLatestPostWithStatus", ctx, Listed).Return(nil, fmt.Errorf("some-error")).Once()
 
@@ -239,7 +297,8 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		storage.On("CountPostsWithStatus", ctx, Uploaded).Return(32, nil).Once()
 
@@ -252,7 +311,8 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		storage.On("CountPostsWithStatus", ctx, Uploaded).Return(0, fmt.Errorf("some-error")).Once()
 
@@ -266,14 +326,15 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
 		posts := make([]Post, 3)
 		for i := range 3 {
 			posts[i] = *NewFakePost(t).Build()
 		}
 
-		storage.On("GetListedPosts", ctx, uint64(200), uint64(3)).Return(posts, nil).Once()
+		storage.On("GetListedPosts", ctx, uint(200), uint(3)).Return(posts, nil).Once()
 
 		res, err := svc.GetPosts(ctx, 200, 3)
 		require.NoError(t, err)
@@ -284,9 +345,10 @@ func Test_Posts_Service(t *testing.T) {
 		tools := tools.NewMock(t)
 		storage := newMockStorage(t)
 		mediasSvc := medias.NewMockService(t)
-		svc := newService(tools, storage, mediasSvc)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
 
-		storage.On("GetListedPosts", ctx, uint64(200), uint64(3)).Return(nil, fmt.Errorf("some-error")).Once()
+		storage.On("GetListedPosts", ctx, uint(200), uint(3)).Return(nil, fmt.Errorf("some-error")).Once()
 
 		res, err := svc.GetPosts(ctx, 200, 3)
 		require.ErrorIs(t, err, errs.ErrInternal)
