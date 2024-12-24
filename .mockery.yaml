@@ -18,6 +18,16 @@ packages:
         config:
           mockname: "mock{{.InterfaceName | camelcase}}"
           filename: "{{.InterfaceName | camelcase | firstLower}}_mock_test.go"
+  github.com/Peltoche/onlyfun/internal/services/moderations:
+    interfaces:
+      Service:
+        config:
+          mockname: "Mock{{.InterfaceName}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock.go"
+      storage:
+        config:
+          mockname: "mock{{.InterfaceName | camelcase}}"
+          filename: "{{.InterfaceName | camelcase | firstLower}}_mock_test.go"
   github.com/Peltoche/onlyfun/internal/services/posts:
     interfaces:
       Service:
