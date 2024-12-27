@@ -215,4 +215,55 @@ func TestPostSqlStorage(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, nbUploaded, resUploaded)
 	})
+
+	t.Run("GetOldestPostWithStatus success", func(t *testing.T) {
+		t.Parallel()
+
+		db := sqlstorage.NewTestStorage(t)
+		store := newSqlStorage(db)
+
+		role, _ := perms.NewFakePermissions(t).BuildAndStore(ctx, db)
+		avatar := medias.NewFakeFileMeta(t).BuildAndStore(ctx, db)
+		user := users.NewFakeUser(t).WithRole(role).WithAvatar(avatar).BuildAndStore(ctx, db)
+
+		// oldest will have a bigger id as it have been created first.
+		oldest := NewFakePost(t).CreatedBy(user).WithStatus(Listed).BuildAndStore(ctx, db)
+		_ = NewFakePost(t).CreatedBy(user).WithStatus(Listed).BuildAndStore(ctx, db)
+
+		res, err := store.GetOldestPostWithStatus(ctx, Listed)
+		require.NoError(t, err)
+		require.Equal(t, oldest, res)
+	})
+
+	t.Run("GetOldestPostWithStatus with not post found", func(t *testing.T) {
+		t.Parallel()
+
+		db := sqlstorage.NewTestStorage(t)
+		store := newSqlStorage(db)
+
+		res, err := store.GetOldestPostWithStatus(ctx, Listed)
+		require.Nil(t, res)
+		require.ErrorIs(t, err, errNotFound)
+	})
+
+	t.Run("CountPostsWithStatus", func(t *testing.T) {
+		t.Parallel()
+
+		db := sqlstorage.NewTestStorage(t)
+		store := newSqlStorage(db)
+
+		role, _ := perms.NewFakePermissions(t).BuildAndStore(ctx, db)
+		avatar := medias.NewFakeFileMeta(t).BuildAndStore(ctx, db)
+		user := users.NewFakeUser(t).WithRole(role).WithAvatar(avatar).BuildAndStore(ctx, db)
+
+		nbListedPosts := 10
+
+		for i := 0; i < nbListedPosts; i++ {
+			_ = NewFakePost(t).CreatedBy(user).WithStatus(Listed).BuildAndStore(ctx, db)
+		}
+
+		res, err := store.CountPostsWithStatus(ctx, Listed)
+		require.NoError(t, err)
+		require.Equal(t, nbListedPosts, res)
+	})
 }
