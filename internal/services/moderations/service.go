@@ -55,7 +55,7 @@ func (s *service) ModeratePost(ctx context.Context, cmd *PostModerationCmd) (*Mo
 
 	err = s.storage.Save(ctx, &moderation)
 	if err != nil {
-		return nil, fmt.Errorf("failed to Save in db: %w", err)
+		return nil, errs.Internal(fmt.Errorf("failed to Save in db: %w", err))
 	}
 
 	return &moderation, nil
