@@ -18,6 +18,7 @@ var staticsFS embed.FS
 
 type Config struct {
 	HotReload bool `json:"hotReload"`
+	isTest    bool
 }
 
 type HTTPHandler struct {
@@ -29,10 +30,10 @@ type HTTPHandler struct {
 func NewHTTPHandler(cfg Config) *HTTPHandler {
 	var assetFS http.FileSystem
 
-	switch cfg.HotReload {
-	case true:
+	if cfg.HotReload && !cfg.isTest {
+		// [os.DirFS] doesn't works correctly with the tests.
 		assetFS = http.FS(os.DirFS("./assets/public"))
-	case false:
+	} else {
 		memFS, _ := fs.Sub(staticsFS, "public")
 		assetFS = http.FS(memFS)
 	}
