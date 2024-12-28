@@ -57,4 +57,21 @@ func Test_Assets_HTTPHandler(t *testing.T) {
 		// Headers
 		require.Equal(t, "no-cache", res.Header.Get("Cache-Control"))
 	})
+
+	t.Run("Handle with a non existing resource", func(t *testing.T) {
+		handler := NewHTTPHandler(Config{HotReload: true, isTest: true})
+		router := chi.NewRouter()
+		handler.Register(router, nil)
+
+		r := httptest.NewRequest(http.MethodGet, "/assets/doesnt-exists", nil)
+		w := httptest.NewRecorder()
+
+		router.ServeHTTP(w, r)
+
+		res := w.Result()
+		defer res.Body.Close()
+
+		// Status code
+		require.Equal(t, http.StatusNotFound, res.StatusCode)
+	})
 }
