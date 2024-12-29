@@ -355,4 +355,54 @@ func Test_Posts_Service(t *testing.T) {
 		require.ErrorContains(t, err, "some-error")
 		require.Nil(t, res)
 	})
+
+	t.Run("SetPostStatus success", func(t *testing.T) {
+		tools := tools.NewMock(t)
+		storage := newMockStorage(t)
+		mediasSvc := medias.NewMockService(t)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
+
+		post := NewFakePost(t).WithStatus(Uploaded).Build()
+		postWithNewStatus := *post
+		postWithNewStatus.status = Moderated
+
+		storage.On("Update", ctx, &postWithNewStatus).Return(nil).Once()
+
+		err := svc.SetPostStatus(ctx, post, Moderated)
+		require.NoError(t, err)
+	})
+
+	t.Run("SetPostStatus with the same status", func(t *testing.T) {
+		tools := tools.NewMock(t)
+		storage := newMockStorage(t)
+		mediasSvc := medias.NewMockService(t)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
+
+		post := NewFakePost(t).WithStatus(Uploaded).Build()
+
+		// Use the same status so do nothing
+
+		err := svc.SetPostStatus(ctx, post, Uploaded)
+		require.NoError(t, err)
+	})
+
+	t.Run("SetPostStatus with a storage error", func(t *testing.T) {
+		tools := tools.NewMock(t)
+		storage := newMockStorage(t)
+		mediasSvc := medias.NewMockService(t)
+		permsSvc := perms.NewMockService(t)
+		svc := newService(tools, storage, mediasSvc, permsSvc)
+
+		post := NewFakePost(t).WithStatus(Uploaded).Build()
+		postWithNewStatus := *post
+		postWithNewStatus.status = Moderated
+
+		storage.On("Update", ctx, &postWithNewStatus).Return(fmt.Errorf("some-error")).Once()
+
+		err := svc.SetPostStatus(ctx, post, Moderated)
+		require.ErrorIs(t, err, errs.ErrInternal)
+		require.ErrorContains(t, err, "some-error")
+	})
 }

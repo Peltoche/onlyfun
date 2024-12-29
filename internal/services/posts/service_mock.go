@@ -222,6 +222,24 @@ func (_m *MockService) GetUserStats(ctx context.Context, user *users.User) (map[
 	return r0, r1
 }
 
+// SetPostStatus provides a mock function with given fields: ctx, post, status
+func (_m *MockService) SetPostStatus(ctx context.Context, post *Post, status Status) error {
+	ret := _m.Called(ctx, post, status)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetPostStatus")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *Post, Status) error); ok {
+		r0 = rf(ctx, post, status)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // SuscribeToNewPost provides a mock function with given fields:
 func (_m *MockService) SuscribeToNewPost() <-chan Post {
 	ret := _m.Called()

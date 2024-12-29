@@ -11,6 +11,7 @@ import (
 	"github.com/Peltoche/onlyfun/internal/services/moderations"
 	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/services/posts"
+	"github.com/Peltoche/onlyfun/internal/services/tasks"
 	"github.com/Peltoche/onlyfun/internal/services/users"
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/errs"
@@ -26,6 +27,7 @@ type ModerationHandler struct {
 	auth      *auth.Authenticator
 	postsSvc  posts.Service
 	modeSvc   moderations.Service
+	tasksSvc  tasks.Service
 	mediasSvc medias.Service
 	usersSvc  users.Service
 	permsSvc  perms.Service
@@ -37,6 +39,7 @@ func NewModerationHandler(
 	html html.Writer,
 	auth *auth.Authenticator,
 	posts posts.Service,
+	tasksSvc tasks.Service,
 	modeSvc moderations.Service,
 	users users.Service,
 	roles perms.Service,
@@ -46,6 +49,7 @@ func NewModerationHandler(
 	return &ModerationHandler{
 		html:      html,
 		postsSvc:  posts,
+		tasksSvc:  tasksSvc,
 		modeSvc:   modeSvc,
 		usersSvc:  users,
 		mediasSvc: medias,
