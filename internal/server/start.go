@@ -13,10 +13,11 @@ import (
 	"github.com/Peltoche/onlyfun/internal/services/moderations"
 	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/services/posts"
-	"github.com/Peltoche/onlyfun/internal/services/tasks"
+	taskssvc "github.com/Peltoche/onlyfun/internal/services/tasks"
 	"github.com/Peltoche/onlyfun/internal/services/users"
 	"github.com/Peltoche/onlyfun/internal/services/utilities"
 	"github.com/Peltoche/onlyfun/internal/services/websessions"
+	"github.com/Peltoche/onlyfun/internal/tasks"
 	"github.com/Peltoche/onlyfun/internal/tools"
 	"github.com/Peltoche/onlyfun/internal/tools/logger"
 	"github.com/Peltoche/onlyfun/internal/tools/router"
@@ -42,16 +43,6 @@ type Config struct {
 	Listener router.Config
 	HTML     html.Config
 	Assets   assets.Config
-}
-
-// AsRoute annotates the given constructor to state that
-// it provides a route to the "routes" group.
-func AsRoute(f any) any {
-	return fx.Annotate(
-		f,
-		fx.As(new(router.Registerer)),
-		fx.ResultTags(`group:"routes"`),
-	)
 }
 
 func start(ctx context.Context, cfg Config, invoke fx.Option) *fx.App {
@@ -94,7 +85,10 @@ func start(ctx context.Context, cfg Config, invoke fx.Option) *fx.App {
 			fx.Annotate(medias.Init, fx.As(new(medias.Service))),
 			fx.Annotate(perms.Init, fx.As(new(perms.Service))),
 			fx.Annotate(moderations.Init, fx.As(new(moderations.Service))),
-			fx.Annotate(tasks.Init, fx.As(new(tasks.Service))),
+			fx.Annotate(taskssvc.Init, fx.ParamTags(`group:"taskrunners"`), fx.As(new(taskssvc.Service))),
+
+			// TasksRunners
+			AsTaskRunner(tasks.NewPostModerateTaskRunner),
 
 			// Middlewares
 			middlewares.NewBootstrapMiddleware,
@@ -121,4 +115,24 @@ func start(ctx context.Context, cfg Config, invoke fx.Option) *fx.App {
 	)
 
 	return app
+}
+
+// AsRoute annotates the given constructor to state that
+// it provides a route to the "routes" group.
+func AsRoute(f any) any {
+	return fx.Annotate(
+		f,
+		fx.As(new(router.Registerer)),
+		fx.ResultTags(`group:"routes"`),
+	)
+}
+
+// AsTaskRunner annotates the given constructor to state that
+// it provides a route to the "taskrunners" group.
+func AsTaskRunner(f any) any {
+	return fx.Annotate(
+		f,
+		fx.As(new(taskssvc.TaskRunner)),
+		fx.ResultTags(`group:"taskrunners"`),
+	)
 }

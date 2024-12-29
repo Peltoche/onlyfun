@@ -14,6 +14,7 @@ type Service interface {
 	Create(ctx context.Context, cmd *CreateCmd) (*Post, error)
 	GetLatestPost(ctx context.Context) (*Post, error)
 	GetByID(ctx context.Context, postID uint) (*Post, error)
+	SetPostStatus(ctx context.Context, post *Post, status Status) error
 	GetPosts(ctx context.Context, start uint, nbPosts uint) ([]Post, error)
 	GetNextPostToModerate(ctx context.Context) (*Post, error)
 	CountPostsWaitingModeration(ctx context.Context) (int, error)

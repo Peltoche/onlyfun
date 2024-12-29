@@ -57,6 +57,21 @@ func newService(tools tools.Tools, posts storage, mediasSvc medias.Service, perm
 	return svc
 }
 
+func (s *service) SetPostStatus(ctx context.Context, post *Post, status Status) error {
+	if post.status == status {
+		return nil
+	}
+
+	post.status = status
+
+	err := s.storage.Update(ctx, post)
+	if err != nil {
+		return errs.Internal(fmt.Errorf("failed to Update the post %q: %w", post.id, err))
+	}
+
+	return nil
+}
+
 func (s *service) SuscribeToNewPost() <-chan Post {
 	s.l.Lock()
 	defer s.l.Unlock()
