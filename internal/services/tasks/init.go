@@ -8,7 +8,15 @@ import (
 	"github.com/Peltoche/onlyfun/internal/tools/sqlstorage"
 )
 
+type Task interface {
+	Priority() int
+	Name() string
+	Validate() error
+	Args() json.RawMessage
+}
+
 type Service interface {
+	RegisterTask(ctx context.Context, task Task) error
 	Run(ctx context.Context) error
 }
 

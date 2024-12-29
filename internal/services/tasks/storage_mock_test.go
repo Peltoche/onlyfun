@@ -33,23 +33,23 @@ func (_m *mockStorage) Delete(ctx context.Context, taskID uuid.UUID) error {
 }
 
 // GetByID provides a mock function with given fields: ctx, id
-func (_m *mockStorage) GetByID(ctx context.Context, id uuid.UUID) (*Task, error) {
+func (_m *mockStorage) GetByID(ctx context.Context, id uuid.UUID) (*taskData, error) {
 	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
 	}
 
-	var r0 *Task
+	var r0 *taskData
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*Task, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*taskData, error)); ok {
 		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *taskData); ok {
 		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Task)
+			r0 = ret.Get(0).(*taskData)
 		}
 	}
 
@@ -62,54 +62,24 @@ func (_m *mockStorage) GetByID(ctx context.Context, id uuid.UUID) (*Task, error)
 	return r0, r1
 }
 
-// GetLastRegisteredTask provides a mock function with given fields: ctx, name
-func (_m *mockStorage) GetLastRegisteredTask(ctx context.Context, name string) (*Task, error) {
-	ret := _m.Called(ctx, name)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetLastRegisteredTask")
-	}
-
-	var r0 *Task
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*Task, error)); ok {
-		return rf(ctx, name)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *Task); ok {
-		r0 = rf(ctx, name)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Task)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, name)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetNext provides a mock function with given fields: ctx
-func (_m *mockStorage) GetNext(ctx context.Context) (*Task, error) {
+func (_m *mockStorage) GetNext(ctx context.Context) (*taskData, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetNext")
 	}
 
-	var r0 *Task
+	var r0 *taskData
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*Task, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*taskData, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *taskData); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Task)
+			r0 = ret.Get(0).(*taskData)
 		}
 	}
 
@@ -122,26 +92,8 @@ func (_m *mockStorage) GetNext(ctx context.Context) (*Task, error) {
 	return r0, r1
 }
 
-// Patch provides a mock function with given fields: ctx, taskID, fields
-func (_m *mockStorage) Patch(ctx context.Context, taskID uuid.UUID, fields map[string]interface{}) error {
-	ret := _m.Called(ctx, taskID, fields)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Patch")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, map[string]interface{}) error); ok {
-		r0 = rf(ctx, taskID, fields)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // Save provides a mock function with given fields: ctx, task
-func (_m *mockStorage) Save(ctx context.Context, task *Task) error {
+func (_m *mockStorage) Save(ctx context.Context, task *taskData) error {
 	ret := _m.Called(ctx, task)
 
 	if len(ret) == 0 {
@@ -149,7 +101,25 @@ func (_m *mockStorage) Save(ctx context.Context, task *Task) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *Task) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *taskData) error); ok {
+		r0 = rf(ctx, task)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Update provides a mock function with given fields: ctx, task
+func (_m *mockStorage) Update(ctx context.Context, task *taskData) error {
+	ret := _m.Called(ctx, task)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *taskData) error); ok {
 		r0 = rf(ctx, task)
 	} else {
 		r0 = ret.Error(0)

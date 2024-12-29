@@ -12,48 +12,66 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type FakeTaskBuilder struct {
+type fakeTaskBuilder struct {
 	t    testing.TB
-	task *Task
+	task *taskData
 }
 
-func NewFakeTask(t testing.TB) *FakeTaskBuilder {
+func newFakeTask(t testing.TB) *fakeTaskBuilder {
 	t.Helper()
 
 	uuidProvider := uuid.NewProvider()
 	registeredAt := gofakeit.DateRange(time.Now().Add(-time.Hour*1000), time.Now())
 
-	return &FakeTaskBuilder{
+	return &fakeTaskBuilder{
 		t: t,
-		task: &Task{
-			registeredAt: registeredAt,
-			id:           uuidProvider.New(),
-			name:         gofakeit.Name(),
-			status:       queuing,
-			args:         json.RawMessage(`{"foo":"bar"}`),
-			priority:     2,
-			retries:      0,
+		task: &taskData{
+			RegisteredAt: registeredAt,
+			ID:           uuidProvider.New(),
+			Name:         gofakeit.Name(),
+			Status:       queuing,
+			Args:         json.RawMessage(`{"foo":"bar"}`),
+			Priority:     2,
+			Retries:      0,
 		},
 	}
 }
 
-func (f *FakeTaskBuilder) WithRetries(retries int) *FakeTaskBuilder {
-	f.task.retries = retries
+func (f *fakeTaskBuilder) WithStatus(status Status) *fakeTaskBuilder {
+	f.task.Status = status
 
 	return f
 }
 
-func (f *FakeTaskBuilder) WithTaksName(name string) *FakeTaskBuilder {
-	f.task.name = name
+func (f *fakeTaskBuilder) RegisteredAt(date time.Time) *fakeTaskBuilder {
+	f.task.RegisteredAt = date
 
 	return f
 }
 
-func (f *FakeTaskBuilder) Build() *Task {
+func (f *fakeTaskBuilder) WithPriority(priority int) *fakeTaskBuilder {
+	f.task.Priority = priority
+
+	return f
+}
+
+func (f *fakeTaskBuilder) WithRetries(retries int) *fakeTaskBuilder {
+	f.task.Retries = retries
+
+	return f
+}
+
+func (f *fakeTaskBuilder) WithTaksName(name string) *fakeTaskBuilder {
+	f.task.Name = name
+
+	return f
+}
+
+func (f *fakeTaskBuilder) Build() *taskData {
 	return f.task
 }
 
-func (f *FakeTaskBuilder) BuildAndStore(ctx context.Context, db sqlstorage.Querier) *Task {
+func (f *fakeTaskBuilder) BuildAndStore(ctx context.Context, db sqlstorage.Querier) *taskData {
 	f.t.Helper()
 
 	storage := newSqlStorage(db)

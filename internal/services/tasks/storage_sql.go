@@ -27,8 +27,8 @@ func newSqlStorage(db sqlstorage.Querier) *sqlStorage {
 	return &sqlStorage{db}
 }
 
-func (s *sqlStorage) Save(ctx context.Context, task *Task) error {
-	rawArgs, err := json.Marshal(task.args)
+func (s *sqlStorage) Save(ctx context.Context, task *taskData) error {
+	rawArgs, err := json.Marshal(task.Args)
 	if err != nil {
 		return fmt.Errorf("failed to marshal the args: %w", err)
 	}
@@ -37,12 +37,12 @@ func (s *sqlStorage) Save(ctx context.Context, task *Task) error {
 		Insert(tableName).
 		Columns(allFields...).
 		Values(
-			task.id,
-			task.priority,
-			task.name,
-			task.status,
-			task.retries,
-			ptr.To(sqlstorage.SQLTime(task.registeredAt)),
+			task.ID,
+			task.Priority,
+			task.Name,
+			task.Status,
+			task.Retries,
+			ptr.To(sqlstorage.SQLTime(task.RegisteredAt)),
 			rawArgs,
 		).
 		RunWith(s.db).
@@ -54,45 +54,7 @@ func (s *sqlStorage) Save(ctx context.Context, task *Task) error {
 	return nil
 }
 
-func (s *sqlStorage) GetLastRegisteredTask(ctx context.Context, name string) (*Task, error) {
-	var res Task
-	var rawArgs json.RawMessage
-	var sqlRegisteredAt sqlstorage.SQLTime
-
-	err := sq.
-		Select(allFields...).
-		From(tableName).
-		Where(sq.Eq{"name": name}).
-		OrderBy("registered_at DESC").
-		Limit(1).
-		RunWith(s.db).
-		ScanContext(ctx,
-			&res.id,
-			&res.priority,
-			&res.name,
-			&res.status,
-			&res.retries,
-			&sqlRegisteredAt,
-			&rawArgs,
-		)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, errNotFound
-	}
-
-	if err != nil {
-		return nil, fmt.Errorf("sql error: %w", err)
-	}
-
-	res.registeredAt = sqlRegisteredAt.Time()
-	err = json.Unmarshal(rawArgs, &res.args)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal the arg: %w", err)
-	}
-
-	return &res, nil
-}
-
-func (s *sqlStorage) GetByID(ctx context.Context, id uuid.UUID) (*Task, error) {
+func (s *sqlStorage) GetByID(ctx context.Context, id uuid.UUID) (*taskData, error) {
 	row := sq.
 		Select(allFields...).
 		From(tableName).
@@ -104,22 +66,34 @@ func (s *sqlStorage) GetByID(ctx context.Context, id uuid.UUID) (*Task, error) {
 	return s.scanRow(row)
 }
 
-func (s *sqlStorage) GetNext(ctx context.Context) (*Task, error) {
+func (s *sqlStorage) GetNext(ctx context.Context) (*taskData, error) {
 	row := sq.
 		Select(allFields...).
 		From(tableName).
 		Where(sq.Eq{"status": queuing}).
-		OrderBy("priority", "registered_at").
+		OrderBy("priority", "registered_at ASC").
 		RunWith(s.db).
 		QueryRowContext(ctx)
 
 	return s.scanRow(row)
 }
 
-func (s *sqlStorage) Patch(ctx context.Context, taskID uuid.UUID, fields map[string]any) error {
-	_, err := sq.Update(tableName).
-		SetMap(fields).
-		Where(sq.Eq{"id": taskID}).
+func (s *sqlStorage) Update(ctx context.Context, task *taskData) error {
+	rawArgs, err := json.Marshal(task.Args)
+	if err != nil {
+		return fmt.Errorf("failed to marshal the args: %w", err)
+	}
+
+	_, err = sq.Update(tableName).
+		SetMap(map[string]any{
+			"priority":      task.Priority,
+			"name":          task.Name,
+			"status":        task.Status,
+			"retries":       task.Retries,
+			"registered_at": ptr.To(sqlstorage.SQLTime(task.RegisteredAt)),
+			"args":          rawArgs,
+		}).
+		Where(sq.Eq{"id": task.ID}).
 		RunWith(s.db).
 		ExecContext(ctx)
 	if err != nil {
@@ -141,17 +115,17 @@ func (s *sqlStorage) Delete(ctx context.Context, taskID uuid.UUID) error {
 	return nil
 }
 
-func (s *sqlStorage) scanRow(row sq.RowScanner) (*Task, error) {
-	var res Task
+func (s *sqlStorage) scanRow(row sq.RowScanner) (*taskData, error) {
+	var res taskData
 	var rawArgs json.RawMessage
 	var sqlRegisteredAt sqlstorage.SQLTime
 
 	err := row.Scan(
-		&res.id,
-		&res.priority,
-		&res.name,
-		&res.status,
-		&res.retries,
+		&res.ID,
+		&res.Priority,
+		&res.Name,
+		&res.Status,
+		&res.Retries,
 		&sqlRegisteredAt,
 		&rawArgs,
 	)
@@ -163,8 +137,8 @@ func (s *sqlStorage) scanRow(row sq.RowScanner) (*Task, error) {
 		return nil, fmt.Errorf("failed to scan the sql result: %w", err)
 	}
 
-	res.registeredAt = sqlRegisteredAt.Time()
-	err = json.Unmarshal(rawArgs, &res.args)
+	res.RegisteredAt = sqlRegisteredAt.Time()
+	err = json.Unmarshal(rawArgs, &res.Args)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal the args: %w", err)
 	}
