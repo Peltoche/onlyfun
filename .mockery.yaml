@@ -48,7 +48,7 @@ packages:
         config:
           mockname: "mock{{.InterfaceName | camelcase}}"
           filename: "{{.InterfaceName | camelcase | firstLower}}_mock_test.go"
-  github.com/Peltoche/onlyfun/internal/services/tasks:
+  github.com/Peltoche/onlyfun/internal/services/taskrunner:
     interfaces:
       Service:
         config:

@@ -13,7 +13,7 @@ import (
 	"github.com/Peltoche/onlyfun/internal/services/moderations"
 	"github.com/Peltoche/onlyfun/internal/services/perms"
 	"github.com/Peltoche/onlyfun/internal/services/posts"
-	taskssvc "github.com/Peltoche/onlyfun/internal/services/tasks"
+	"github.com/Peltoche/onlyfun/internal/services/taskrunner"
 	"github.com/Peltoche/onlyfun/internal/services/users"
 	"github.com/Peltoche/onlyfun/internal/services/utilities"
 	"github.com/Peltoche/onlyfun/internal/services/websessions"
@@ -85,7 +85,7 @@ func start(ctx context.Context, cfg Config, invoke fx.Option) *fx.App {
 			fx.Annotate(medias.Init, fx.As(new(medias.Service))),
 			fx.Annotate(perms.Init, fx.As(new(perms.Service))),
 			fx.Annotate(moderations.Init, fx.As(new(moderations.Service))),
-			fx.Annotate(taskssvc.Init, fx.ParamTags(`group:"taskrunners"`), fx.As(new(taskssvc.Service))),
+			fx.Annotate(taskrunner.Init, fx.ParamTags(`group:"taskrunners"`), fx.As(new(taskrunner.Service))),
 
 			// TasksRunners
 			AsTaskRunner(tasks.NewPostModerateTaskRunner),
@@ -132,7 +132,7 @@ func AsRoute(f any) any {
 func AsTaskRunner(f any) any {
 	return fx.Annotate(
 		f,
-		fx.As(new(taskssvc.TaskRunner)),
+		fx.As(new(taskrunner.TaskRunner)),
 		fx.ResultTags(`group:"taskrunners"`),
 	)
 }
