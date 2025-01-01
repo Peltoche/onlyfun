@@ -1,4 +1,4 @@
-package tasks
+package taskrunner
 
 import (
 	"encoding/json"
