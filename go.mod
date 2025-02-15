@@ -5,7 +5,7 @@ go 1.22.4
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/adrg/xdg v0.5.3
-	github.com/brianvoe/gofakeit/v7 v7.1.2
+	github.com/brianvoe/gofakeit/v7 v7.2.1
 	github.com/coreos/go-systemd/v22 v22.5.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/gabriel-vasile/mimetype v1.4.7
