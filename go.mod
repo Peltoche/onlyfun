@@ -1,6 +1,7 @@
 module github.com/Peltoche/onlyfun
 
 go 1.22.4
+toolchain go1.24.1
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
@@ -18,13 +19,13 @@ require (
 	github.com/mileusna/useragent v1.3.5
 	github.com/neilotoole/slogt v1.1.0
 	github.com/o1egl/govatar v0.4.1
-	github.com/spf13/afero v1.11.0
+	github.com/spf13/afero v1.14.0
 	github.com/stretchr/testify v1.10.0
 	github.com/unrolled/render v1.7.0
 	go.uber.org/fx v1.23.0
 	golang.org/x/crypto v0.33.0
-	golang.org/x/sync v0.11.0
-	golang.org/x/text v0.22.0
+	golang.org/x/sync v0.12.0
+	golang.org/x/text v0.23.0
 )
 
 require (
